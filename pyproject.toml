@@ -21,6 +21,25 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 
+# Optional dependencies for documentation [docs] and testing/linting [dev]:
+[project.optional-dependencies]
+docs = [
+    'mkdocs',
+    'mkdocstrings[python]',
+    'mkdocs_section_index',
+    'mkdocs_gen_files',
+    'mkdocs_literate_nav',
+    'mkdocs-gallery',
+]
+dev = [
+    "black",                        # Code formatter
+    "isort",                        # Import sorter
+    "pytest",                       # Testing framework
+    "ruff",                         # Code linter
+    "pytest-cov",                   # Test coverage plugin for pytest
+    "pydocstyle",                    # Docstrings linter
+]
+
 # following is so version control works
 dynamic = ["version"]
 
