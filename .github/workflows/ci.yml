@@ -47,7 +47,7 @@ jobs:
 
     - name: Build package
       run: | 
-        pip install hatchling  # Ensure hatchling is installed
+        pip install hatch  # Ensure hatch is installed
         hatch build  # create the distribution files 
 
     - name: Upload release distributions
