@@ -53,5 +53,5 @@ jobs:
     - name: Upload release distributions
       uses: actions/upload-artifact@v4
       with:
-        name: release-dists  # This should match what deploy.yml expects
+        name: release-dists-${{ matrix.python-version }}-${{ github.run_id }}  # Unique name to avoid conflicts
         path: dist/*  # Path to the built distributions

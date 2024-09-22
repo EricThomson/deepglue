@@ -27,7 +27,7 @@ jobs:
       - name: Retrieve release distributions
         uses: actions/download-artifact@v4 # this was uploaded in ci.yml
         with:
-          name: release-dists  # Ensure this matches the artifact name produced by your CI job
+          name: release-dists-*  # match artifacts with prefix used in ci.yml
           path: dist/
 
       - name: Publish release distributions to PyPI
