@@ -1,1 +1,9 @@
-site_name: My Docs
+# mkdocs.yml
+site_name: Deep Glue Documentation
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Usage: usage.md
+  - API Reference: api.md

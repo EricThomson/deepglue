@@ -1,17 +1,16 @@
-# Welcome to MkDocs
+# Welcome to Deep Glue
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+deepglue provies common utilities for pytorch projects. It's a way to keep the useful stuff together in one place. There are plotting, file management, test/train functions that are present in just many different pytorch projects and I'm creating this to avoid repeating myself.
 
-## Commands
+The goal is for readability and clarity of code to be the guiding value as it will maximize understanding and progress. Check out [Usage](usage.md) on how to use deepglue.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+To inspect thne different functions available sese the [API page](api.md).
 
-## Project layout
+This is pre-beta and a WORK IN PROGRESS
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+## Features
+- Plotting utilities
+- File utilities
+- Train and test workflows that are are simple and transparent
+
+

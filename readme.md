@@ -1,3 +1,3 @@
-# deep glue 
-Helpers and utilities for deep learning. Keep everything together.
+# Deep Glue
+Helpers and utilities for pytorch projects. Keep all the useful stuff together in one place.
 
