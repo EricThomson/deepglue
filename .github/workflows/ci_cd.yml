@@ -1,77 +1,69 @@
 # Deep Glue CI/CD Workflow
-# Note no requirements.txt file, but if so might need to change the following
-# Install Python dependencies, run tests and lint with multiple Python versions.
+# Install Python dependencies, run tests, lint, and publish to PyPI.
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
 name: deepglue ci_cd
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 permissions:
   contents: read
+  id-token: write  # Required for trusted publishing
 
 jobs:
   build-and-deploy:
-
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-        
-    - name: set up Python 3.10
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
+      - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install .[docs,dev]
-        
-    - name: Lint with ruff
-      run: |
-        pip install ruff
-        ruff check --output-format=github .
-      continue-on-error: true   # Allow CI to continue even if there are lint errors
-        
-    - name: Test with pytest
-      run: pytest
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-    - name: Build package
-      run: | 
-        pip install hatch  # Ensure hatch is installed
-        hatch build  # create the distribution files 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[docs,dev]
 
-    - name: Upload release distributions
-      uses: actions/upload-artifact@v4
-      with:
-        name: release-dists  # make sure this matches what is in deploy.yml
-        path: dist/*  # Path to the built distributions
+      - name: Lint with ruff
+        run: |
+          pip install ruff
+          ruff check --output-format=github .
+        continue-on-error: true  # Allow CI to continue even if there are lint errors
 
-    - name: Publish to PyPI
-      if: success()  # Ensure the step runs only if all previous steps succeed
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}  # 
+      - name: Test with pytest
+        run: pytest
+
+      - name: Build package
+        run: |
+          pip install hatch  # Ensure hatch is installed
+          hatch build  # create the distribution files 
+
+      - name: Upload release distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dists  # Ensure this matches what is expected in the publish job
+          path: dist/*  # Path to the built distributions
 
   publish:
     name: Publish release to PyPI
-    needs: build  # Ensure this runs after the build job
+    needs: build-and-deploy  # Ensure this runs after the build-and-deploy job
     runs-on: ubuntu-latest
-    permissions:
-        id-token: write  # Mandatory for trusted publishing
 
     steps:
-        - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-            name: release-dists
-            path: dist/
-        - name: Publish package to PyPI
+          name: release-dists
+          path: dist/
+
+      - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-            user: __token__
-            password: ${{ secrets.PYPI_API_TOKEN }}
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
