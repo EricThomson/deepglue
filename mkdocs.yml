@@ -2,7 +2,7 @@
 site_name: Deep Glue Documentation
 theme:
   name: material
-  logo: docs/images/deep_glue_logo.png  # path relative to docs/
+  logo: images/deep_glue_logo.png  # path relative to docs/
 
 nav:
   - Home: index.md
