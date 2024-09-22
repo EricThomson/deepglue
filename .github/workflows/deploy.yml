@@ -1,33 +1,35 @@
-# deploy to pypi once ci runs successfully
+# Deploy to PyPI once CI runs successfully
 name: publish to pypi
-on:
-    workflow_run:
-      workflows: ["deepglue ci"] 
-      types:
-        - completed  # Trigger when the CI workflow is completed
-  
-  permissions:
-    contents: read
-    id-token: write  # Mandatory for trusted publishing
-  
-  jobs:
-    pypi-publish:
-      if: ${{ github.event.workflow_run.conclusion == 'success' }}  # Only run if CI is successful
-      runs-on: ubuntu-latest
 
-      environment:
-        name: pypi
-        url: https://pypi.org/project/deepglue
-  
-      steps:
-        - name: Check out the code
-          uses: actions/checkout@v4
-  
-        - name: Retrieve release distributions
-          uses: actions/download-artifact@v4
-          with:
-            name: release-dists  # Ensure this matches the artifact name produced by your CI job
-            path: dist/
-  
-        - name: Publish release distributions to PyPI
-          uses: pypa/gh-action-pypi-publish@release/v1
+on:
+  workflow_run:
+    workflows: ["deepglue ci"] 
+    types:
+      - completed  # Trigger when the CI workflow is completed
+
+permissions:
+  contents: read
+  id-token: write  # Mandatory for trusted publishing
+
+jobs:
+  pypi-publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}  # Only run if CI is successful
+    runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
+      url: https://pypi.org/project/deepglue
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Retrieve release distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: release-dists  # Ensure this matches the artifact name produced by your CI job
+          path: dist/
+
+      - name: Publish release distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
