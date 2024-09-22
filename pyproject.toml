@@ -11,8 +11,7 @@ readme = "readme.md"
 dependencies = [
     "torch", 
     "numpy",
-    "matplotlib",
-    "pytest"
+    "matplotlib"
     ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -53,10 +52,3 @@ packages = ["src/deepglue"]  # Specify the path to the package directory
 path = "src/deepglue/__init__.py"
 pattern = '^__version__ = "(?P<version>.*)"' 
 
-# Include optional dependencies for documentation (buildthedocs)
-[project.optional-dependencies]
-docs = [
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]"  # for building documentation for api
-]
