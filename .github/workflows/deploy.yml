@@ -24,16 +24,23 @@ jobs:
       - name: Check out the code
         uses: actions/checkout@v4
 
+      - name: List Available Artifacts Before Download
+        run: |
+          echo "Listing artifacts available from the CI run:"
+          # List artifacts uploaded from the CI workflow
+          ls -R ${{ github.workspace }}
+
       - name: Retrieve release distributions
         uses: actions/download-artifact@v4
         with:
           name: release-dists  # Match this with the artifact name from ci.yml
           path: dist/  # Path to download the artifact into
 
-      - name: List Artifacts Available for Download
+      - name: Check Download Status
+        if: failure()  # This runs only if the previous step fails
         run: |
-          echo "Available artifacts:"
-          ls dist/
+          echo "Artifact retrieval failed. Checking available files:"
+          ls -R dist/
 
       - name: Publish release distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
