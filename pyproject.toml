@@ -20,6 +20,9 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 
+# following is so version control works
+dynamic = ["version"]
+
 # Optional dependencies for documentation [docs] and testing/linting [dev]:
 [project.optional-dependencies]
 docs = [
@@ -39,8 +42,6 @@ dev = [
     "pydocstyle",                    # Docstrings linter
 ]
 
-# following is so version control works
-dynamic = ["version"]
 
 [tool.hatch.build.targets.wheel]
 include = ["src/deepglue/**"]
