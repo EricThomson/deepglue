@@ -3,7 +3,7 @@ name: publish to pypi
 
 on:
   workflow_run:
-    workflows: ["deepglue ci"] 
+    workflows: ["deepglue ci"]
     types:
       - completed  # Trigger when the CI workflow is completed
 
@@ -25,11 +25,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Retrieve release distributions
-        uses: actions/download-artifact@v4 # this was uploaded in ci.yml
+        uses: actions/download-artifact@v4
         with:
-          name: release-dists-*  # match artifacts with prefix used in ci.yml
-          path: dist/
+          name: release-dists  # Match this with the artifact name from ci.yml
+          path: dist/  # Path to download the artifact into
+
+      - name: List Artifacts Available for Download
+        run: |
+          echo "Available artifacts:"
+          ls dist/
 
       - name: Publish release distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-
