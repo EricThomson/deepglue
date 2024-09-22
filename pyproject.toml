@@ -24,8 +24,8 @@ requires-python = ">=3.9"
 dynamic = ["version"]
 
 urls = { 
-    "Homepage" = "https://github.com/EricThomson/deepglue",
-    "Documentation" = "https://deepglue.readthedocs.io/en/latest/"
+    "Homepage": "https://github.com/EricThomson/deepglue",
+    "Documentation": "https://deepglue.readthedocs.io/en/latest/"
 }
 
 # Optional dependencies for documentation [docs] and testing/linting [dev]:
