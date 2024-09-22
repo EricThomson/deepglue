@@ -7,7 +7,7 @@ name = "deepglue"
 description = "deepglue: A utility package for deep learning projects. Keeping things together."
 authors = [{ name = "Eric Thomson", email = "thomson.eric@gmail.com" }]
 license = { text = "MIT" }
-readme = "README.md"
+readme = "readme.md"
 dependencies = [
     "torch", 
     "numpy",
