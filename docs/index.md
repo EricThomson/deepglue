@@ -4,9 +4,9 @@ deepglue provies common utilities for pytorch projects. It's a way to keep the u
 
 The goal is for readability and clarity of code to be the guiding value as it will maximize understanding and progress. Check out [Usage](usage.md) on how to use deepglue.
 
-To inspect thne different functions available sese the [API page](api.md).
+To inspect the different functions available sese the [API page](api.md) (coming soon)
 
-This is pre-beta and a WORK IN PROGRESS
+This is pre-alpha -- a rapidly changing WORK IN PROGRESS where things will break.
 
 ## Features
 - Plotting utilities

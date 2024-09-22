@@ -4,11 +4,9 @@ Getting started with Deep Glue.
 
 ## Installation
 
-In the virtual environment in which you have torch install, add in deepglue with pip:
+In the virtual environment in which you have torch installed, clone and do dev install with:
 
-    pip install deepglue
+    pip install -e . 
 
-## Basic usage
-
-### Creating subdirectories
-If you have a bunch of data and need to generate training, validation, and test folders inside of a parent folder.
+## Usage
+Coming soon
