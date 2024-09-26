@@ -35,6 +35,9 @@ def create_subdirs(parent_dir, subdirs):
     """
     parent_dir = Path(parent_dir)
 
+    if not parent_dir.exists():
+        parent_dir.mkdir(parents=True, exist_ok=True)  # Create parent and intermediates if they don't exist
+
     # make sure subdirs is a list
     if isinstance(subdirs, str):
         subdirs = [subdirs]
