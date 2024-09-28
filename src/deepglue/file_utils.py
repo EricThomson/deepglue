@@ -8,6 +8,7 @@ Functions
 create_subdirs(parent_dir, subdirs)
     creates subdirectories within given parent directory
 """
+import os
 from pathlib import Path
 
 def create_subdirs(parent_dir, subdirs):

@@ -1,5 +1,9 @@
 # tests/test_file_utils.py
+import pytest 
+from pathlib import Path 
+
 from deepglue import create_subdirs
+from deepglue import get_category_counts_by_split
 
 
 def test_create_subdirs(tmp_path):
@@ -40,3 +44,62 @@ def test_create_subdirs(tmp_path):
     # Check that the new parent directory and subdirectories exist
     assert new_parent_dir.exists()
     assert all(path.exists() for path in created_paths)
+
+
+@pytest.fixture
+def setup_test_image_category_dirs(tmp_path):
+    """
+    Sets up temporary test directories for train, valid, and test with standard directory structure for classes and images.
+
+    Standard directory structure here is set up as:
+        tmp_path/  # pytest fixture
+            train/
+                class0/   [3 images]
+                class1/   [3 images]
+                class2/   [3 images]
+            valid/
+                class0/   class1/   
+            test/
+                class0/   class1/   
+
+    Parameters
+    ----------
+    tmp_path : Path
+        Pytest fixture that provides a temporary directory unique to each test.
+
+    Returns
+    -------
+    temp_path: Path
+        The path to the temporary data directory.
+    """
+    # Create the train, valid, and test directories with class1 and class2
+    split_types = ['train', 'valid', 'test']
+    categories = ['class0', 'class1']
+
+    for split in split_types:
+        split_dir = tmp_path / split
+        split_dir.mkdir()
+        for category in categories:
+            category_dir = split_dir / category
+            category_dir.mkdir()
+            # Create sample image files in each category
+            for i in range(3):  # Create 3 images per category for simplicity
+                (category_dir / f'image_{i}.png').touch()
+
+    return tmp_path
+
+
+def test_get_category_counts_by_split(setup_test_image_category_dirs):
+    """
+    Test that get_category_counts_by_split correctly counts the number of images in each category.
+    """
+    data_path = setup_test_image_category_dirs
+    counts = get_category_counts_by_split(data_path)
+    
+    expected_counts = {
+        'train': {'class0': 3, 'class1': 3},
+        'valid': {'class0': 3, 'class1': 3},
+        'test': {'class0': 3, 'class1': 3},
+    }
+    
+    assert counts == expected_counts, "Counts do not match expected values."
