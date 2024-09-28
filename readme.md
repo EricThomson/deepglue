@@ -6,5 +6,7 @@ Helpers and utilities for pytorch projects. Keep all the useful stuff together i
 
 Very early development, can install with `pip install deepglue`.
 
+When using, `import deepglue as dg`
+
 
 

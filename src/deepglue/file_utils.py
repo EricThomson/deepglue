@@ -50,3 +50,46 @@ def create_subdirs(parent_dir, subdirs):
         new_paths.append(subdir_path)
 
     return new_paths
+
+
+def get_category_counts_by_split(data_path):
+    """
+    Counts the number of images in each category within train, validation, and test splits.
+
+    Assumes a directory structure where images are stored in category-specific 
+    subdirectories under 'train', 'valid', and 'test' folders.
+
+    Parameters
+    ----------
+    data_path : Path
+        The path to the directory containing the 'train', 'valid', and 'test' folders.
+
+    Returns
+    -------
+    num_category_by_split: dict
+        A nested dictionary with keys 'train', 'valid', and 'test', each containing a sub-dictionary 
+        where the keys are category names and the values are the counts of images in each category.
+
+    Raises
+    ------
+    FileNotFoundError
+        If any of the 'train', 'valid', or 'test' directories do not exist at the specified path.
+    """
+    split_types = ['train', 'valid', 'test']
+    num_category_by_split = {}
+    
+    for split_type in split_types:
+        dataset_path = data_path / split_type
+        
+        if not dataset_path.exists():
+            raise FileNotFoundError(f"Directory {dataset_path} does not exist. Please check your directory structure.")
+        
+        num_category_by_split[split_type] = {}
+        
+        for category in os.listdir(dataset_path):
+            category_path = dataset_path / category
+            if category_path.is_dir():
+                num_images = len(list(category_path.glob('*'))) 
+                num_category_by_split[split_type][category] = num_images
+
+    return num_category_by_split
