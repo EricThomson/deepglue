@@ -83,7 +83,7 @@ def get_category_counts_by_split(data_path):
         dataset_path = data_path / split_type
         
         if not dataset_path.exists():
-            raise FileNotFoundError(f"Directory {dataset_path} does not exist. Please check your directory structure.")
+            raise FileNotFoundError(f"{dataset_path} does not exist. Please check your directory structure.")
         
         num_category_by_split[split_type] = {}
         
@@ -94,3 +94,49 @@ def get_category_counts_by_split(data_path):
                 num_category_by_split[split_type][category] = num_images
 
     return num_category_by_split
+
+
+def get_samples_per_category(data_path):
+    """
+    Calculates the total number of images for each category across all splits.
+
+    Traverses the train, valid, and test folders and aggregates image counts
+    for each category. This can be useful for identifying category imbalances.
+
+    Parameters
+    ----------
+    data_path : Path
+        The path to the parent directory containing the 'train', 'valid', and 'test' folders. They each
+        contain the same category-specific subdirectories.
+        
+    Returns
+    -------
+    samples_per_category : dict
+        A dictionary where keys are category names and values are the total number of images in each category.
+
+    Raises
+    ------
+    FileNotFoundError
+        If any of the specified split directories ('train', 'valid', 'test') do not exist at the given path.
+    """
+    samples_per_category = {}
+    split_types = ['train', 'valid', 'test']
+
+    for split_type in split_types:
+        split_path = data_path / split_type
+
+        if not split_path.exists():
+            raise FileNotFoundError(f"{split_path} does not exist. Please check your directory structure.")
+
+        # Traverse each category directory in the split
+        for category_path in split_path.iterdir():
+            if category_path.is_dir():
+                # Use glob to count files in each category directory
+                category_name = category_path.name
+                num_images = len(list(category_path.glob('*')))
+                # initialize
+                if category_name not in samples_per_category:
+                    samples_per_category[category_name] = 0
+                samples_per_category[category_name] += num_images
+
+    return samples_per_category

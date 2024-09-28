@@ -92,6 +92,10 @@ def setup_test_image_category_dirs(tmp_path):
 def test_get_category_counts_by_split(setup_test_image_category_dirs):
     """
     Test that get_category_counts_by_split correctly counts the number of images in each category.
+
+    TODO: 
+        - test for correct directory structure (add error handling)
+        - test for correct expected_counts dict (add error handling)
     """
     data_path = setup_test_image_category_dirs
     counts = get_category_counts_by_split(data_path)
