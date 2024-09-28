@@ -140,3 +140,47 @@ def get_samples_per_category(data_path):
                 samples_per_category[category_name] += num_images
 
     return samples_per_category
+
+
+def get_samples_per_split(data_path):
+    """
+    Calculates the total number of samples in train, test, and validation splits, regardless of categories.
+
+    This function directly traverses the 'train', 'valid', and 'test' folders and counts all image files,
+    providing the total number of samples in each split without considering category distinctions.
+
+    Parameters
+    ----------
+    data_path : Path
+        The path to the directory containing the 'train', 'valid', and 'test' folders.
+
+    Returns
+    -------
+    samples_per_split : dict
+        A dictionary with keys 'train', 'valid', and 'test', each containing the total number of samples 
+        in each split, regardless of category.
+
+    Raises
+    ------
+    FileNotFoundError
+        If any of the specified split directories ('train', 'valid', 'test') do not exist at the given path.
+    """
+    samples_per_split = {}
+    split_types = ['train', 'valid', 'test']
+
+    for split_type in split_types:
+        split_path = data_path / split_type
+
+        if not split_path.exists():
+            raise FileNotFoundError(f"{split_path} does not exist. Please check your directory structure.")
+
+        split_total = 0
+        # Directly iterate over category directories within the split folder
+        for category_dir in split_path.iterdir():
+            if category_dir.is_dir():
+                # Count files in the category directory
+                split_total += len(list(category_dir.glob('*')))
+
+        samples_per_split[split_type] = split_total
+
+    return samples_per_split

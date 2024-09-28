@@ -1,9 +1,11 @@
 # tests/test_file_utils.py
 import pytest 
 from pathlib import Path 
+import shutil
 
 from deepglue import create_subdirs
 from deepglue import get_category_counts_by_split
+from deepglue import get_samples_per_category
 
 
 def test_create_subdirs(tmp_path):
@@ -47,20 +49,22 @@ def test_create_subdirs(tmp_path):
 
 
 @pytest.fixture
-def setup_test_image_category_dirs(tmp_path):
+def setup_test_dirs_for_category_counts(tmp_path):
     """
-    Sets up temporary test directories for train, valid, and test with standard directory structure for classes and images.
+    Sets up temporary test directories for train, valid, and test with sample images
+    in different categories.
 
-    Standard directory structure here is set up as:
-        tmp_path/  # pytest fixture
+    Standard structure:
+        tmp_path/
             train/
                 class0/   [3 images]
-                class1/   [3 images]
-                class2/   [3 images]
+                class1/   [2 images]
             valid/
-                class0/   class1/   
+                class0/   [1 image]
+                class1/   [4 images]
             test/
-                class0/   class1/   
+                class0/   [0 images]
+                class1/   [3 images]
 
     Parameters
     ----------
@@ -69,41 +73,73 @@ def setup_test_image_category_dirs(tmp_path):
 
     Returns
     -------
-    temp_path: Path
+    tmp_path: Path
         The path to the temporary data directory.
     """
     # Create the train, valid, and test directories with class1 and class2
     split_types = ['train', 'valid', 'test']
-    categories = ['class0', 'class1']
+    category_counts = {
+        'class0': [3, 1, 0],  # Number of images in train, valid, test
+        'class1': [2, 4, 3]
+    }
 
-    for split in split_types:
+    for split, counts in zip(split_types, zip(*category_counts.values())):
         split_dir = tmp_path / split
         split_dir.mkdir()
-        for category in categories:
+        for category, count in zip(category_counts.keys(), counts):
             category_dir = split_dir / category
             category_dir.mkdir()
-            # Create sample image files in each category
-            for i in range(3):  # Create 3 images per category for simplicity
+            # Create the specified number of image files in each category
+            for i in range(count):
                 (category_dir / f'image_{i}.png').touch()
 
     return tmp_path
 
 
-def test_get_category_counts_by_split(setup_test_image_category_dirs):
+def test_get_category_counts_by_split(setup_test_dirs_for_category_counts):
     """
     Test that get_category_counts_by_split correctly counts the number of images in each category.
-
-    TODO: 
-        - test for correct directory structure (add error handling)
-        - test for correct expected_counts dict (add error handling)
     """
-    data_path = setup_test_image_category_dirs
+    data_path = setup_test_dirs_for_category_counts
     counts = get_category_counts_by_split(data_path)
     
     expected_counts = {
-        'train': {'class0': 3, 'class1': 3},
-        'valid': {'class0': 3, 'class1': 3},
-        'test': {'class0': 3, 'class1': 3},
+        'train': {'class0': 3, 'class1': 2},
+        'valid': {'class0': 1, 'class1': 4},
+        'test': {'class0': 0, 'class1': 3},
     }
     
     assert counts == expected_counts, "Counts do not match expected values."
+
+
+def test_missing_split_directory(setup_test_dirs_for_category_counts):
+    """
+    Test that get_category_counts_by_split raises a FileNotFoundError when a split directory is missing.
+
+    This test removes the 'valid' directory from the standard setup to simulate what happens
+    when a part of the expected directory structure is missing.
+    """
+    data_path = setup_test_dirs_for_category_counts
+
+    # Simulate missing 'valid' directory by removing it along with its contents
+    shutil.rmtree(data_path / 'valid')
+
+    # Check that it raises expected error type
+    with pytest.raises(FileNotFoundError):
+        get_category_counts_by_split(data_path)
+
+
+def test_get_samples_per_category(setup_test_dirs_for_category_counts):
+    """
+    Test that get_samples_per_category correctly calculates the total number of images
+    for each category across all splits.
+    """
+    data_path = setup_test_dirs_for_category_counts
+    counts = get_samples_per_category(data_path)
+
+    expected_counts = {
+        'class0': 4,  # 3 from train + 1 from valid + 0 from test
+        'class1': 9   # 2 from train + 4 from valid + 3 from test
+    }
+
+    assert counts == expected_counts, "The category counts do not match the expected values."
