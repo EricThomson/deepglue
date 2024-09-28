@@ -8,5 +8,7 @@ Very early development, can install with `pip install deepglue`.
 
 When using, `import deepglue as dg`
 
+This is at pre-alpha stage, a rapidly changing work in progress. 
+
 
 

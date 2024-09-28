@@ -1,13 +1,9 @@
 """
 deepglue file_utils.py
 
-This module contains functions for file management and handlling. 
-
-Functions 
----------
-create_subdirs(parent_dir, subdirs)
-    creates subdirectories within given parent directory
+Modules includes functions that are useful for wrangling directories and files. 
 """
+
 import os
 from pathlib import Path
 

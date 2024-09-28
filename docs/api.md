@@ -1,4 +1,8 @@
-# Deep Glue API reference
-This section provides an API reference for the main functions in `deepglue`.
+# Deep Glue API Reference
+This section provides an API reference for the main functions in `deepglue`. This means that it basically renders the docstrings directly from the different modules. 
 
--- under construction -- 
+Note Deep Glue is pre-alpha, a rapidly changing work in progress. 
+
+## File Utilities
+
+::: deepglue.file_utils
