@@ -1,7 +1,7 @@
 """
 deepglue file_utils.py
 
-Modules includes functions that are useful for wrangling directories and files. 
+Module includes functions that are useful for wrangling directories and files. 
 """
 
 import os

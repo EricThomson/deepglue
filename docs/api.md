@@ -3,6 +3,11 @@ This section provides an API reference for the main functions in `deepglue`. Thi
 
 Note Deep Glue is pre-alpha, a rapidly changing work in progress. 
 
+## Plot utilities
+
+::: deepglue.plot_utils
+
+
 ## File Utilities
 
 ::: deepglue.file_utils
