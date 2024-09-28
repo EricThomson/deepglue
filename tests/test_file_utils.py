@@ -6,6 +6,7 @@ import shutil
 from deepglue import create_subdirs
 from deepglue import get_category_counts_by_split
 from deepglue import get_samples_per_category
+from deepglue import get_samples_per_split
 
 
 def test_create_subdirs(tmp_path):
@@ -143,3 +144,20 @@ def test_get_samples_per_category(setup_test_dirs_for_category_counts):
     }
 
     assert counts == expected_counts, "The category counts do not match the expected values."
+
+
+def test_get_samples_per_split(setup_test_dirs_for_category_counts):
+    """
+    Test that get_samples_per_split correctly calculates the total number of samples
+    in each split (train, valid, test) regardless of categories.
+    """
+    data_path = setup_test_dirs_for_category_counts
+    counts = get_samples_per_split(data_path)
+
+    expected_counts = {
+        'train': 5,  # 3 images in class0 + 2 images in class1
+        'valid': 5,  # 1 image in class0 + 4 images in class1
+        'test': 3    # 0 images in class0 + 3 images in class1
+    }
+
+    assert counts == expected_counts, "The total sample counts per split do not match the expected values."
