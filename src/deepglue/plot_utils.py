@@ -10,6 +10,7 @@ import numpy as np
 import os
 from PIL import Image
 import random
+from skimage.color import rgb2gray
 
 def plot_category_samples(data_path, category, split_type='train', num_to_plot=16, filetype='png'):
     """
