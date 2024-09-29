@@ -66,3 +66,50 @@ def plot_category_samples(data_path, category, split_type='train', num_to_plot=1
     fig.tight_layout()
 
     return fig, axes
+
+
+def plot_batch(batch_images, batch_targets, category_map, max_to_plot=32, cmap='gray'):
+    """
+    Plots a batch of images, and their corresponding target categories, from a DataLoader.
+
+    Parameters
+    ----------
+    batch_images : torch.Tensor
+        A tensor containing a batch of images with shape `(N, C, H, W)`, where
+        `N` is the batch size, `C` is the number of channels, `H` is the height,
+        and `W` is the width of the images.
+    batch_targets : torch.Tensor
+        A tensor containing the target labels for the batch, with shape `(N,)`.
+    category_map : dict
+        A dictionary mapping category indices (as strings) to their human-readable
+        labels, e.g., `{'0': 'car', '1': 'ant'}`.
+    max_to_plot : int, optional
+        The maximum number of images to plot from the batch. Defaults to 32.
+    cmap : str, optional
+        The colormap to use for displaying images. Defaults to 'gray'.
+
+    Returns
+    -------
+    None
+        Displays a grid of images with their corresponding labels.
+
+    Notes
+    -----
+    - Images are converted to grayscale.
+    - If batch size is smaller than `max_to_plot`, all images in batch will be plotted.
+    """
+    nbatch = len(batch_targets)
+    num_to_plot = min(nbatch, max_to_plot)
+    nrows = int(np.ceil(num_to_plot/4))
+    
+    fig, axes = plt.subplots(nrows=nrows, ncols=4, figsize=(7, 2*(nrows))) # size is width x height
+    for index, ax in enumerate(axes.flat):
+        if index >= num_to_plot:
+            break
+        image = batch_images[index].permute(1,2,0).numpy() # originally in chan,rows,cols convert to row x col x chan
+        image = rgb2gray(image)
+        category = str(batch_targets[index].item())
+        ax.imshow(image, cmap=cmap)
+        ax.set_title(category_map[category], fontsize=10)
+        ax.axis('off')
+    fig.tight_layout()
