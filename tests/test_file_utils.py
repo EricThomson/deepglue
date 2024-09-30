@@ -1,6 +1,5 @@
 # tests/test_file_utils.py
 import pytest 
-from pathlib import Path 
 import shutil
 
 from deepglue import create_subdirs

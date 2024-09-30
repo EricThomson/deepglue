@@ -11,7 +11,9 @@ readme = "readme.md"
 dependencies = [
     "torch", 
     "numpy",
-    "matplotlib"
+    "matplotlib",
+    "scikit-learn",
+    "scikit-image"
     ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -46,7 +48,6 @@ dev = [
     "pytest-cov",                   # Test coverage plugin for pytest
     "pydocstyle",                    # Docstrings linter
 ]
-
 
 [tool.hatch.build.targets.wheel]
 include = ["src/deepglue/**"]
