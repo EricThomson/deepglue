@@ -19,8 +19,8 @@ def test_accuracy():
     assert top1_accuracy == [100.0], f"Expected [100.0] but got {top1_accuracy}"
 
     # Test for top-1 and top-2 accuracy
-    topk_accuracy = accuracy(output, target, topk=(1, 2))
-    assert topk_accuracy == [100.0, 100.0], f"Expected [100.0, 100.0] but got {topk_accuracy}"
+    top2_accuracy = accuracy(output, target, topk=(1, 2))
+    assert top2_accuracy == [100.0, 100.0], f"Expected [100.0, 100.0] but got {top2_accuracy}"
 
     # Example 2: Another controlled case to check top-k behavior
     output = torch.tensor([
@@ -37,7 +37,7 @@ def test_accuracy():
 
     # Test for top-1 and top-2 accuracy (should be 100% and 100%)
     top2_accuracy = accuracy(output, target, topk=(1, 2))
-    assert top2_accuracy == [100.0, 100.0], f"Expected [100.0, 100.0] but got {topk_accuracy}"
+    assert top2_accuracy == [100.0, 100.0], f"Expected [100.0, 100.0] but got {top2_accuracy}"
 
     # Example 3: A case with some incorrect predictions
     output = torch.tensor([
@@ -50,4 +50,4 @@ def test_accuracy():
 
     # Test for top-1 and top-2 accuracy (should be 50% and 100%)
     top2_accuracy = accuracy(output, target, topk=(1, 2))
-    assert top2_accuracy == [50.0, 100.0], f"Expected [50.0, 100.0] but got {topk_accuracy}"
+    assert top2_accuracy == [50.0, 100.0], f"Expected [50.0, 100.0] but got {top2_accuracy}"
