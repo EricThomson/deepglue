@@ -7,6 +7,9 @@ Module includes functions that are useful for wrangling directories and files.
 import os
 from pathlib import Path
 
+import logging
+logging.getLogger(__name__)
+
 def create_subdirs(parent_dir, subdirs):
     """
     Create subdirectories within a specified parent directory
@@ -30,6 +33,8 @@ def create_subdirs(parent_dir, subdirs):
     >>> create_subdirs(Path("path/to/parent"), ["subdir1", "subdir2"])
     [Path('/path/to/parent/subdir1'), Path('/path/to/parent/subdir2')]
     """
+    logging.info(f"Creating subdirectories of {parent_dir}")
+
     parent_dir = Path(parent_dir)
 
     if not parent_dir.exists():
@@ -72,6 +77,8 @@ def get_category_counts_by_split(data_path):
     FileNotFoundError
         If any of the 'train', 'valid', or 'test' directories do not exist at the specified path.
     """
+    logging.info(f"Getting category counts by split in {data_path}")
+
     split_types = ['train', 'valid', 'test']
     num_category_by_split = {}
     
@@ -115,6 +122,8 @@ def get_samples_per_category(data_path):
     FileNotFoundError
         If any of the specified split directories ('train', 'valid', 'test') do not exist at the given path.
     """
+    logging.info(f"Getting samples per category in {data_path}")
+
     samples_per_category = {}
     split_types = ['train', 'valid', 'test']
 
@@ -161,6 +170,8 @@ def get_samples_per_split(data_path):
     FileNotFoundError
         If any of the specified split directories ('train', 'valid', 'test') do not exist at the given path.
     """
+    logging.info(f"Getting samples per split in {data_path}")
+
     samples_per_split = {}
     split_types = ['train', 'valid', 'test']
 

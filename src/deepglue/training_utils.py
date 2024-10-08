@@ -6,6 +6,9 @@ Functions that are useful for training deep networks, including validation and t
 
 import torch
 
+import logging
+logging.getLogger(__name__)
+
 def accuracy(output, target, topk=(1,)):
     """
     Computes the accuracy over the k top predictions for the specified values of k.
@@ -17,7 +20,7 @@ def accuracy(output, target, topk=(1,)):
     target : torch.Tensor
         The ground truth labels, of shape (batch_size,) or (batch_size, num_classes) if one-hot encoded.
     topk : tuple of int, optional
-        A tuple of integers specifying the values of k for which to compute the accuracy.
+        A tuple of integers specifying the values of k for which to compute the prediction accuracy.
         Defaults to (1,).
 
     Returns
@@ -30,6 +33,8 @@ def accuracy(output, target, topk=(1,)):
     - Adapted from torchvision's accuracy function (release 0.19.1), which is licensed under the BSD-3 License.
     - Original implementation in pytorch/vision/references/classification/utils.py 
     """
+    logging.info(f"Calculating topk accuracy with topk value {topk}")
+    
     with torch.inference_mode():
         maxk = max(topk)
         batch_size = target.size(0)
