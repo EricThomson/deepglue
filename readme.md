@@ -4,11 +4,13 @@
 
 Helpers and utilities for pytorch projects. Keep all the useful stuff together in one place.
 
-Very early development, can install with `pip install deepglue`.
+Install: `pip install deepglue`.
 
-When using, `import deepglue as dg`
+Use: `import deepglue as dg`
 
-This is at pre-alpha stage, a rapidly changing work in progress. 
+Docs: https://deepglue.readthedocs.io/en/latest/ 
+
+Deep Glue is in very early, pre-alpha, stage. It is a rapidly changing work in progress. 
 
 
 
