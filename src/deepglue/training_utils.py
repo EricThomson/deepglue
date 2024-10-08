@@ -38,7 +38,7 @@ def accuracy(output, target, topk=(1,)):
             target = target.max(dim=1)[1]
 
         _, pred = output.topk(maxk, 1, True, True) # get the top k predictions
-        pred = pred.t() # convert to k rows, batches in columns
+        pred = pred.t() # convert to maxk x batch_size which is what comparitor wants
         correct = pred.eq(target.unsqueeze(0))  # k x batches bool gives position of correct prediction (if any) for batch col
 
         topk_accuracy = []
