@@ -1,16 +1,16 @@
 # Deep Glue
 
-<img src="https://raw.githubusercontent.com/EricThomson/deepglue/main/docs/images/deep_glue_logo.png" alt="deepglue Logo" align="right" width="200">
+<img src="https://raw.githubusercontent.com/EricThomson/deepglue/main/docs/images/deep_glue_logo.png" alt="deepglue logo" align="right" width="180">
 
-Helpers and utilities for pytorch projects. Keep all the useful stuff together in one place.
+Utilities for pytorch projects: keeping all the useful stuff together in one place.
 
-Install: `pip install deepglue`.
+Installation: `pip install deepglue`.
 
 Use: `import deepglue as dg`
 
 Docs: https://deepglue.readthedocs.io/en/latest/ 
 
-Deep Glue is in very early, pre-alpha, stage. It is a rapidly changing work in progress. 
+Deep Glue is a rapidly changing work in progress. Consider it in pre-alpha stages.
 
 
 
