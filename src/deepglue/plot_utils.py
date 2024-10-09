@@ -12,6 +12,9 @@ from PIL import Image
 import random
 from skimage.color import rgb2gray
 
+import logging
+logging.getLogger(__name__)
+
 def plot_category_samples(data_path, category, split_type='train', num_to_plot=16, filetype='png'):
     """
     Plots random samples from a specified category within a data split (default is train split).
@@ -46,7 +49,7 @@ def plot_category_samples(data_path, category, split_type='train', num_to_plot=1
     elif not any(full_path.glob(f"*.{filetype}")):
         raise FileNotFoundError(f"No images found in {full_path}. Please check your directory.")
 
-    print(f"Pulling random images from {full_path}")
+    logging.info(f"Pulling samples from {full_path}")
     
     ncols = 4
     nrows = int(np.ceil(num_to_plot/ncols))

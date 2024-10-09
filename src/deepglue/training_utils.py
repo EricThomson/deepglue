@@ -33,8 +33,8 @@ def accuracy(output, target, topk=(1,)):
     - Adapted from torchvision's accuracy function (release 0.19.1), which is licensed under the BSD-3 License.
     - Original implementation in pytorch/vision/references/classification/utils.py 
     """
-    logging.info(f"Calculating topk accuracy with topk value {topk}")
-    
+    # logging.debug(f"Calculating topk accuracy with topk value {topk}")
+
     with torch.inference_mode():
         maxk = max(topk)
         batch_size = target.size(0)
