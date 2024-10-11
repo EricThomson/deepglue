@@ -5,6 +5,7 @@ deepGlue: A utility package for deep learning projects.
 __version__ = "0.1.1"  
 
 from .training_utils import train_one_epoch
+from .training_utils import validate_one_epoch
 from .training_utils import accuracy
 
 from .plot_utils import plot_category_samples
@@ -17,6 +18,7 @@ from .file_utils import get_samples_per_category
 from .file_utils import get_samples_per_split
 
 __all__ = ["train_one_epoch",
+           "validate_one_epoch",
            "accuracy",
            
            "plot_category_samples",

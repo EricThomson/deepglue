@@ -93,6 +93,83 @@ def train_one_epoch(model, train_data_loader, loss_function, optimizer, device, 
     return epoch_loss, np.array(epoch_topk_acc)
 
 
+def validate_one_epoch(model, valid_data_loader, loss_function, device, topk=(1,5)):
+    """
+    Validates the model for one epoch using the provided validation data loader.
+
+    Parameters
+    ----------
+    model : torch model
+        The neural network model to be validated.
+    valid_data_loader : torch.utils.data.DataLoader
+        An iterable that provides the batches for validation data set
+    loss_function : callable
+        The loss function to compute the loss (e.g., CrossEntropyLoss).
+    device : str
+        The device ('cpu' or 'cuda') on which the model and data are placed.
+    topk: tuple of ints
+        A tuple specifying which top-k accuracies to calculate. Defaults to (1,5)
+
+    Returns
+    -------
+    epoch_loss : float
+        The average loss over all samples in the validation epoch.
+    epoch_topk_acc : list of floats
+        A list of average top-k accuracies over all samples in the epoch. 
+
+    Notes
+    -----
+    Runs in evaluation mode (`model.eval()`) and gradient calculations are disabled.
+    """
+
+    model.to(device)
+    model.eval()  # Set the model to evaluation mode
+
+    # initialize 
+    running_loss = 0.0
+    total_correct_k = [0.0] * len(topk)  # To accumulate the total number of correct predictions at each k level
+    total_samples = 0
+
+    num_batches = len(valid_data_loader)
+    display_period = max(5, int(0.05*num_batches))
+    logging.debug(f"Starting validation on {num_batches} batches.")
+    logging.debug(f"Display period {display_period}")
+
+    with torch.no_grad():  # Disable gradient calculation for validation
+        # data loader will cycle through all batches in one epoch
+        for batch_num, (inputs, labels) in enumerate(valid_data_loader):
+            inputs = inputs.to(device)
+            labels = labels.to(device)
+            
+            batch_size = inputs.size(0)
+            total_samples += batch_size
+
+            # Forward pass
+            outputs = model(inputs)
+            loss = loss_function(outputs, labels)
+
+            # Loss
+            running_loss += loss.item() * batch_size
+
+            # Calculate number correct for each k using the accuracy function
+            batch_k_accuracies = accuracy(outputs, labels, topk=topk)
+            for i, acc_k in enumerate(batch_k_accuracies):
+                num_correct_k = acc_k * batch_size / 100
+                total_correct_k[i] += num_correct_k 
+
+            if np.mod(batch_num, display_period) == 0:
+                logging.debug(f"Batch {batch_num}/{num_batches} loss = {loss.item():.3f}")
+
+    # Compute average loss and top-k accuracies over the epoch
+    epoch_loss = running_loss / total_samples
+    epoch_topk_acc = [100 * (correct_k.item() / total_samples) for correct_k in total_correct_k]
+    
+    logging.debug("Done validation!")
+    logging.debug(f"Validation epoch loss: {epoch_loss:.3f}")
+
+    return epoch_loss, np.array(epoch_topk_acc)
+
+
 def accuracy(output, target, topk=(1,)):
     """
     Computes the accuracy over the k top predictions for the specified values of k.
