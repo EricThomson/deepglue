@@ -8,6 +8,7 @@ import pytest
 
 from deepglue import train_one_epoch  
 from deepglue import validate_one_epoch
+from deepglue import train_and_validate
 from deepglue import accuracy
 
 
@@ -59,6 +60,55 @@ def dummy_data(scope="module"):
     return test_features, test_labels
 
 
+def test_accuracy():
+    # Example 1: Simple case with batch size 4 and 3 classes
+    output = torch.tensor([
+        [0.2, 0.5, 0.3],  # Image 1: Class 1 has highest score
+        [0.1, 0.3, 0.6],  # Image 2: Class 2 has highest score
+        [0.8, 0.1, 0.1],  # Image 3: Class 0 has highest score
+        [0.4, 0.4, 0.2]   # Image 4: Tie between Class 0 and 1, picks 0 by default
+    ])
+    target = torch.tensor([1, 2, 0, 0])  # Ground truth labels
+
+    # Test for top-1 accuracy
+    top1_accuracy = accuracy(output, target, topk=(1,))
+    assert top1_accuracy == [100.0], f"Expected [100.0] but got {top1_accuracy}"
+
+    # Test for top-1 and top-2 accuracy
+    top2_accuracy = accuracy(output, target, topk=(1, 2))
+    assert top2_accuracy == [100.0, 100.0], f"Expected [100.0, 100.0] but got {top2_accuracy}"
+
+    # Example 2: Another controlled case to check top-k behavior
+    output = torch.tensor([
+        [0.2, 0.7, 0.1],  # Image 1: Class 1 is correct, but Class 2 is in top-2
+        [0.9, 0.05, 0.05],# Image 2: Class 0 correct, Class 1 also in top-2
+        [0.1, 0.2, 0.7],  # Image 3: Class 2 correct
+        [0.3, 0.6, 0.1]   # Image 4: Class 1 correct
+    ])
+    target = torch.tensor([1, 0, 2, 1])
+
+    # Test for top-1 accuracy (should be 100%)
+    top1_accuracy = accuracy(output, target, topk=(1,))
+    assert top1_accuracy == [100.0], f"Expected [100.0] but got {top1_accuracy}"
+
+    # Test for top-1 and top-2 accuracy (should be 100% and 100%)
+    top2_accuracy = accuracy(output, target, topk=(1, 2))
+    assert top2_accuracy == [100.0, 100.0], f"Expected [100.0, 100.0] but got {top2_accuracy}"
+
+    # Example 3: A case with some incorrect predictions
+    output = torch.tensor([
+        [0.6, 0.2, 0.2],  # Image 1: Incorrect (should be 1)
+        [0.1, 0.8, 0.1],  # Image 2: Correct (1)
+        [0.1, 0.3, 0.6],  # Image 3: Correct (2)
+        [0.7, 0.2, 0.1]   # Image 4: Incorrect (should be 1)
+    ])
+    target = torch.tensor([1, 1, 2, 1])
+
+    # Test for top-1 and top-2 accuracy (should be 50% and 100%)
+    top2_accuracy = accuracy(output, target, topk=(1, 2))
+    assert top2_accuracy == [50.0, 100.0], f"Expected [50.0, 100.0] but got {top2_accuracy}"
+
+    
 def test_train_one_epoch(simple_linear_model, dummy_data):
     """
     Test for the train_one_epoch function.
@@ -148,50 +198,66 @@ def test_validate_one_epoch(simple_linear_model, dummy_data):
     assert epoch_topk_acc[0] <= epoch_topk_acc[1], "Top-k accuracy values should be non-decreasing."
 
 
-def test_accuracy():
-    # Example 1: Simple case with batch size 4 and 3 classes
-    output = torch.tensor([
-        [0.2, 0.5, 0.3],  # Image 1: Class 1 has highest score
-        [0.1, 0.3, 0.6],  # Image 2: Class 2 has highest score
-        [0.8, 0.1, 0.1],  # Image 3: Class 0 has highest score
-        [0.4, 0.4, 0.2]   # Image 4: Tie between Class 0 and 1, picks 0 by default
-    ])
-    target = torch.tensor([1, 2, 0, 0])  # Ground truth labels
+def test_train_and_validate(simple_linear_model, dummy_data):
+    """
+    Test for the train_and_validate function.
+    
+    This test verifies that the train_and_validate function runs for two epochs without errors,
+    processes the data correctly (training and validation), and returns values of the expected types and shapes.
+    It uses the simple_linear_model and dummy_data fixtures to set up the required components.
 
-    # Test for top-1 accuracy
-    top1_accuracy = accuracy(output, target, topk=(1,))
-    assert top1_accuracy == [100.0], f"Expected [100.0] but got {top1_accuracy}"
+    Parameters
+    ----------
+    simple_linear_model : SimpleLinearModel
+        An instance of the basic neural network model used for testing.
+    dummy_data : tuple
+        The dummy dataset fixture providing input features and labels.
+    """
+    # Unpack the dummy data
+    test_features, test_labels = dummy_data
 
-    # Test for top-1 and top-2 accuracy
-    top2_accuracy = accuracy(output, target, topk=(1, 2))
-    assert top2_accuracy == [100.0, 100.0], f"Expected [100.0, 100.0] but got {top2_accuracy}"
+    # Use the instantiated model from the fixture directly
+    model = simple_linear_model
 
-    # Example 2: Another controlled case to check top-k behavior
-    output = torch.tensor([
-        [0.2, 0.7, 0.1],  # Image 1: Class 1 is correct, but Class 2 is in top-2
-        [0.9, 0.05, 0.05],# Image 2: Class 0 correct, Class 1 also in top-2
-        [0.1, 0.2, 0.7],  # Image 3: Class 2 correct
-        [0.3, 0.6, 0.1]   # Image 4: Class 1 correct
-    ])
-    target = torch.tensor([1, 0, 2, 1])
+    # Create DataLoaders for training and validation
+    dataset = TensorDataset(test_features, test_labels)
+    dataloader = DataLoader(dataset, batch_size=2)  # Small batch size for testing purposes
 
-    # Test for top-1 accuracy (should be 100%)
-    top1_accuracy = accuracy(output, target, topk=(1,))
-    assert top1_accuracy == [100.0], f"Expected [100.0] but got {top1_accuracy}"
+    # Set up the loss function and optimizer
+    loss_function = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=0.01)
 
-    # Test for top-1 and top-2 accuracy (should be 100% and 100%)
-    top2_accuracy = accuracy(output, target, topk=(1, 2))
-    assert top2_accuracy == [100.0, 100.0], f"Expected [100.0, 100.0] but got {top2_accuracy}"
+    # Run train_and_validate
+    model, history = train_and_validate(model, 
+                                        train_data_loader=dataloader, 
+                                        valid_data_loader=dataloader,  # Using the same data for simplicity
+                                        loss_function=loss_function, 
+                                        optimizer=optimizer, 
+                                        device='cpu',
+                                        topk=(1, 2),
+                                        epochs=2)  # Running only 2 epochs for testing speed
 
-    # Example 3: A case with some incorrect predictions
-    output = torch.tensor([
-        [0.6, 0.2, 0.2],  # Image 1: Incorrect (should be 1)
-        [0.1, 0.8, 0.1],  # Image 2: Correct (1)
-        [0.1, 0.3, 0.6],  # Image 3: Correct (2)
-        [0.7, 0.2, 0.1]   # Image 4: Incorrect (should be 1)
-    ])
-    target = torch.tensor([1, 1, 2, 1])
+    # Assertions for the model and history output
+    assert isinstance(history, dict), "History should be a dictionary."
+    assert 'train_loss' in history and 'val_loss' in history, "History should contain 'train_loss' and 'val_loss' keys."
+    assert 'train_topk_accuracy' in history and 'val_topk_accuracy' in history, "History should contain accuracy keys."
 
-    # Test for top-1 and top-2 accuracy (should be 50% and 100%)
-    top2_accuracy = accuracy(output, target, topk=(1, 2))
-    assert top2_accuracy == [50.0, 100.0], f"Expected [50.0, 100.0] but got {top2_accuracy}"
+    # Assertions for the loss values in the history
+    assert len(history['train_loss']) == 2, "Length of 'train_loss' should match number of epochs."
+    assert len(history['val_loss']) == 2, "Length of 'val_loss' should match number of epochs."
+    assert all(isinstance(val, float) for val in history['train_loss']), "Train loss values should be floats."
+    assert all(isinstance(val, float) for val in history['val_loss']), "Validation loss values should be floats."
+
+    # Assertions for the accuracy values in the history
+    assert len(history['train_topk_accuracy']) == 2, "Length of 'train_topk_accuracy' should match number of epochs."
+    assert len(history['val_topk_accuracy']) == 2, "Length of 'val_topk_accuracy' should match number of epochs."
+    assert all(isinstance(val, np.ndarray) for val in history['train_topk_accuracy']), "Train accuracies should be numpy arrays."
+    assert all(isinstance(val, np.ndarray) for val in history['val_topk_accuracy']), "Validation accuracies should be numpy arrays."
+
+    # Check that the top-1 accuracy is always less than or equal to top-2 accuracy in each epoch
+    for epoch_topk_acc in history['train_topk_accuracy']:
+        assert epoch_topk_acc[0] <= epoch_topk_acc[1], "Train top-k accuracy values should be non-decreasing."
+    for epoch_topk_acc in history['val_topk_accuracy']:
+        assert epoch_topk_acc[0] <= epoch_topk_acc[1], "Validation top-k accuracy values should be non-decreasing."
+
+

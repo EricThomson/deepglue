@@ -170,6 +170,87 @@ def validate_one_epoch(model, valid_data_loader, loss_function, device, topk=(1,
     return epoch_loss, np.array(epoch_topk_acc)
 
 
+def train_and_validate(model, 
+                       train_data_loader, 
+                       valid_data_loader, 
+                       loss_function, 
+                       optimizer, 
+                       device, 
+                       topk=(1,5),
+                       epochs=25):
+    """
+    Train and validate a model for a given number of epochs.
+    
+    Parameters
+    ----------
+    model : torch model
+        The neural network model to be trained and validated.
+    train_data_loader : torch.utils.data.DataLoader
+        An iterable that provides the training data batches.
+    valid_data_loader : torch.utils.data.DataLoader
+        An iterable that provides the batches for validation data set
+    loss_function : callable
+        The loss function to compute the loss (e.g., CrossEntropyLoss).
+    optimizer : torch.optim.Optimizer
+        The optimizer used to update model parameters during training (e.g., Adam, SGD).
+    device : str
+        The device ('cpu' or 'cuda') on which the model and data are placed.
+    topk: tuple of ints, optional
+        A tuple specifying which top-k accuracies to calculate. Defaults to (1,5)
+    epochs : int, optional
+        Number of epochs to run. Defaults to 25.
+        
+    Returns
+    -------
+    model : torch.nn.Module
+        The trained model after the completion of training.
+    history : dict
+        A dictionary containing training and validation loss and top-k accuracies per epoch.
+    """
+    train_loss, validation_loss = [], []
+    train_topk_acc, validation_topk_acc = [], []
+    
+    logging.info(f"Training/validation {epochs} epochs")
+    
+    for epoch in range(epochs):
+        logging.info(f"Epoch {epoch+1}/{epochs}")
+
+        # Training step
+        epoch_loss_train, epoch_train_topk = train_one_epoch(model, 
+                                                             train_data_loader, 
+                                                             loss_function, 
+                                                             optimizer, 
+                                                             device,
+                                                             topk=topk)
+        logging.info(f"\tTraining: Loss {epoch_loss_train:0.4f}")
+
+        train_loss.append(epoch_loss_train)
+        train_topk_acc.append(epoch_train_topk)
+
+        # Validation step
+        epoch_loss_val, epoch_val_topk = validate_one_epoch(model, 
+                                                            valid_data_loader, 
+                                                            loss_function, 
+                                                            device,
+                                                            topk=topk)
+
+        validation_loss.append(epoch_loss_val)
+        validation_topk_acc.append(epoch_val_topk)
+        
+        logging.info(f"\tValidation: Loss {epoch_loss_val:.4f}")
+                   
+        torch.cuda.empty_cache()  # Clears unused GPU memory
+
+    logging.info("Done!")
+
+    history = {'train_loss': np.array(train_loss), 
+               'train_topk_accuracy': np.array(train_topk_acc),
+               'val_loss': np.array(validation_loss),
+               'val_topk_accuracy': np.array(validation_topk_acc) }               
+     
+    return model, history  # Return both the trained model and the history
+
+
 def accuracy(output, target, topk=(1,)):
     """
     Computes the accuracy over the k top predictions for the specified values of k.
