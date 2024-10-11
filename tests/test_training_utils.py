@@ -6,7 +6,8 @@ from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import pytest
 
-from deepglue import train_one_epoch  # Adjust import based on your module structure
+from deepglue import train_one_epoch  
+from deepglue import validate_one_epoch
 from deepglue import accuracy
 
 
@@ -95,6 +96,49 @@ def test_train_one_epoch(simple_linear_model, dummy_data):
                                                  optimizer, 
                                                  device,
                                                  topk=(1, 2))
+
+    # Assertions
+    assert isinstance(epoch_loss, float), "Epoch loss should be a float."
+    assert isinstance(epoch_topk_acc, np.ndarray), "Epoch top-k accuracy should be a numpy array."
+    assert epoch_topk_acc.shape[0] == 2, f"Top-k accuracy should have length 2, got {epoch_topk_acc.shape[0]}."
+    assert epoch_loss >= 0, "Loss should be non-negative."
+    assert epoch_topk_acc[0] <= epoch_topk_acc[1], "Top-k accuracy values should be non-decreasing."
+
+
+def test_validate_one_epoch(simple_linear_model, dummy_data):
+    """
+    Test the validate_one_epoch function.
+    
+    This test verifies that the validate_one_epoch function runs without errors, processes
+    the data correctly, and returns values of the expected types and shapes.
+
+    Parameters
+    ----------
+    simple_linear_model : SimpleLinearModel
+        An instance of the basic neural network model used for testing.
+    dummy_data : tuple
+        The dummy dataset fixture providing input features and labels.
+    """
+    # Unpack the dummy data
+    test_features, test_labels = dummy_data
+
+    # Use the instantiated model from the fixture directly
+    model = simple_linear_model
+
+    # Create a DataLoader using the dummy data
+    dataset = TensorDataset(test_features, test_labels)
+    dataloader = DataLoader(dataset, batch_size=2)  # small batch size for testing purposes
+
+    # Set up the loss function
+    loss_function = nn.CrossEntropyLoss()
+    device = 'cpu'
+
+    # Run validate_one_epoch
+    epoch_loss, epoch_topk_acc = validate_one_epoch(model, 
+                                                    dataloader, 
+                                                    loss_function, 
+                                                    device,
+                                                    topk=(1, 2))
 
     # Assertions
     assert isinstance(epoch_loss, float), "Epoch loss should be a float."
