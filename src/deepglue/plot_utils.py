@@ -16,7 +16,6 @@ import logging
 logging.getLogger(__name__)
 
 
-
 # Set global style for all plots when the module is imported
 plt.rcParams.update({'figure.titlesize': 16, # suptitle 
                      'axes.titlesize': 14, # individual plot titles
