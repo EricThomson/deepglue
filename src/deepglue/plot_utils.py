@@ -15,6 +15,17 @@ from skimage.color import rgb2gray
 import logging
 logging.getLogger(__name__)
 
+
+
+# Set global style for all plots when the module is imported
+plt.rcParams.update({'figure.titlesize': 16, # suptitle 
+                     'axes.titlesize': 14, # individual plot titles
+                    'axes.labelsize': 12,  # x and y labels
+                    'legend.fontsize': 10.5, # legend labels 
+                    'xtick.labelsize': 10, # x- and y-tick labels are smallest
+                    'ytick.labelsize': 10})  # suptitle
+
+
 def plot_category_samples(data_path, category, split_type='train', num_to_plot=16, filetype='png'):
     """
     Plots random samples from a specified category within a data split (default is train split).
@@ -66,7 +77,7 @@ def plot_category_samples(data_path, category, split_type='train', num_to_plot=1
         ax.imshow(img, cmap='gray')
         ax.axis('off')  # Hide axes for cleaner display
 
-    fig.suptitle(f"Category: {category}", fontsize=16, y=0.97)
+    fig.suptitle(f"Category: {category}", y=0.97)
     fig.tight_layout()
 
     return fig, axes
@@ -114,7 +125,7 @@ def plot_batch(batch_images, batch_targets, category_map, max_to_plot=32, cmap='
         image = rgb2gray(image)
         category = str(batch_targets[index].item())
         ax.imshow(image, cmap=cmap)
-        ax.set_title(category_map[category], fontsize=10)
+        ax.set_title(category_map[category])
         ax.axis('off')
     fig.tight_layout()
 
