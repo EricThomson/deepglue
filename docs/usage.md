@@ -13,15 +13,17 @@ Or clone repo and do dev install with:
     pip install -e . 
 
 ## Usage
+
 Import and use:
 
     import deepglue as dg
 
-Then all functions will be available such as:
+Then all functions will be available. For instance to train a model for one epoch:
 
-    dg.get_samples_per_category(data_path)
+    dg.train_one_epoch(model, data_loader, loss_function, optimizer)
 
--- more here soon -- 
+This is all in early stages -- eventually there will be simple tutorials to show how to use Deep Glue for classification tasks, etc.  
 
 ## More details
+
 To inspect the different functions and their usage in more detail, see the [API page](api.md).
