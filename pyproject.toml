@@ -14,8 +14,7 @@ dependencies = [
     "matplotlib",
     "scikit-learn",
     "scikit-image",
-    "joblib",
-    "logging"
+    "joblib"
     ]
 classifiers = [
     "Programming Language :: Python :: 3",
