@@ -73,7 +73,7 @@ def plot_category_samples(data_path, category, split_type='train', num_to_plot=1
     for ax, img_file in zip(axes.flat, selected_files):
         # Load the image
         img = Image.open(full_path / img_file)
-        ax.imshow(img, cmap='gray')
+        ax.imshow(img)
         ax.axis('off')  # Hide axes for cleaner display
 
     fig.suptitle(f"Category: {category}", y=0.97)
@@ -168,7 +168,7 @@ def plot_transformed(original_image, transform, cmap=None, num_to_plot=4):
             image = original_image
         else:
             image = transform(original_image).permute(1,2,0)  # permute torch tensor into shape for matplotlib
-        ax.imshow(image, cmap=cmap)
+        ax.imshow(image)
         ax.axis('off')
         if index == 0:
             ax.set_title('Original')
@@ -179,3 +179,43 @@ def plot_transformed(original_image, transform, cmap=None, num_to_plot=4):
 
     return fig, axes
             
+
+def convert_for_plotting(tensor):
+    """
+    Convert float torch tensor image to a uint8 tensor to format suitable for standard plotting libraries.
+
+    Parameters
+    ----------
+    tensor : torch.Tensor
+        The input tensor image. Expected shape: (C, H, W). Typically a float, often not in [0, 1] range.
+
+    Returns
+    -------
+    torch.Tensor
+        A uint8 tensor image scaled to [0, 255] for plotting and dims (H,W,C)
+    """
+    # Validate input
+    if not isinstance(tensor, torch.Tensor):
+        raise ValueError(f"Expected input to be a torch.Tensor, but got {type(tensor)}.")
+    if tensor.ndim != 3 or tensor.size(0) not in {1, 3}:
+        raise ValueError(f"Expected tensor shape (1, H, W) or (3, H, W), but got {tuple(tensor.shape)}.")
+
+    # Ensure the tensor is on CPU and detached from any computation graph
+    tensor = tensor.detach().cpu()
+
+    # Handle grayscale by expanding it to 3 channels for consistent plotting
+    if tensor.size(0) == 1:
+        tensor = tensor.expand(3, -1, -1)  # Convert (1, H, W) -> (3, H, W)
+
+    # Clamp float range to [0,1]
+    tensor = tensor - tensor.min()
+    tensor = tensor / tensor.max()
+
+    # Scale to [0, 255] and convert to uint8
+    tensor = (tensor * 255).byte()
+
+    # Reorder dimensions to (3, W, C) for standard plotting libraries
+    if tensor.dim() == 3:
+        tensor = tensor.permute(1, 2, 0)  # (3, H, W) -> (H, W, 3)
+
+    return tensor
