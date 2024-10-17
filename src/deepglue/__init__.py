@@ -2,7 +2,7 @@
 deepGlue: A utility package for deep learning projects.
 """
 
-__version__ = "0.1.3"  
+__version__ = "0.1.3b"  
 
 from .training_utils import train_one_epoch
 from .training_utils import validate_one_epoch

@@ -38,7 +38,7 @@ def train_one_epoch(model, train_data_loader, loss_function, optimizer, device, 
 
     Notes
     -----
-    The function logs progress and epoch metrics using the logging module. Set to debug to see progress.
+    The function logs progress using the logging module. Set your loggers to 'debug' to see progress.
     """
     model.to(device)
     model.train()  # Set the model to training mode
@@ -55,6 +55,9 @@ def train_one_epoch(model, train_data_loader, loss_function, optimizer, device, 
 
     # data loader will cycle through all batches in one epoch
     for batch_num, (inputs, labels) in enumerate(train_data_loader):
+        if np.mod(batch_num, display_period) == 0:
+            logging.debug(f"Starting batch {batch_num}/{num_batches}")
+
         inputs = inputs.to(device)
         labels = labels.to(device)
         
@@ -66,6 +69,9 @@ def train_one_epoch(model, train_data_loader, loss_function, optimizer, device, 
         # Forward pass
         outputs = model(inputs)
         loss = loss_function(outputs, labels)
+
+        if np.mod(batch_num, display_period) == 0:
+            logging.debug(f"\tStarting backwards pass")
 
         # Backward pass and optimization
         loss.backward()
@@ -81,7 +87,7 @@ def train_one_epoch(model, train_data_loader, loss_function, optimizer, device, 
             total_correct_k[i] += num_correct_k 
             
         if np.mod(batch_num, display_period) == 0:
-            logging.debug(f"Batch {batch_num}/{num_batches} loss = {loss.item():.3f}")
+            logging.debug(f"\tLoss = {loss.item():.3f}")
 
     # Compute average loss and accuracy over the epoch
     epoch_loss = running_loss / total_samples
