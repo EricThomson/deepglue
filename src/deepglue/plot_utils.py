@@ -11,6 +11,7 @@ import os
 from PIL import Image
 import random
 from skimage.color import rgb2gray
+import torch
 
 import logging
 logging.getLogger(__name__)
