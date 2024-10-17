@@ -71,7 +71,7 @@ def train_one_epoch(model, train_data_loader, loss_function, optimizer, device, 
         loss = loss_function(outputs, labels)
 
         if np.mod(batch_num, display_period) == 0:
-            logging.debug(f"\tStarting backwards pass")
+            logging.debug("\tStarting backwards pass")
 
         # Backward pass and optimization
         loss.backward()

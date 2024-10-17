@@ -121,8 +121,8 @@ def plot_batch(batch_images, batch_targets, category_map, max_to_plot=32, cmap='
     for index, ax in enumerate(axes.flat):
         if index >= num_to_plot:  # TODO: is this really needed?
             break
-        image = batch_images[index].permute(1,2,0).numpy() # originally in chan,rows,cols convert to row x col x chan
-        image = rgb2gray(image)
+        image = batch_images[index]
+        image = convert_for_plotting(image)
         category = str(batch_targets[index].item())
         ax.imshow(image, cmap=cmap)
         ax.set_title(category_map[category])
@@ -168,7 +168,7 @@ def plot_transformed(original_image, transform, cmap=None, num_to_plot=4):
         if index == 0:
             image = original_image
         else:
-            image = transform(original_image).permute(1,2,0)  # permute torch tensor into shape for matplotlib
+            image = convert_for_plotting(transform(original_image))  # convert for matplotlib
         ax.imshow(image)
         ax.axis('off')
         if index == 0:
