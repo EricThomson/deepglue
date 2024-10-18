@@ -13,6 +13,7 @@ from .plot_utils import plot_category_samples
 from .plot_utils import plot_batch
 from .plot_utils import plot_transformed
 from .plot_utils import convert_for_plotting
+from .plot_utils import visualize_prediction
 
 from .file_utils import create_subdirs
 from .file_utils import get_category_counts_by_split
@@ -29,6 +30,7 @@ __all__ = ["train_one_epoch",
            "plot_batch",
            "plot_transformed",
            "convert_for_plotting",
+           "visualize_prediction",
            
            "create_subdirs", 
            "get_category_counts_by_split",

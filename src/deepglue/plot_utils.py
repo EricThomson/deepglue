@@ -220,3 +220,69 @@ def convert_for_plotting(tensor):
         tensor = tensor.permute(1, 2, 0)  # (3, H, W) -> (H, W, 3)
 
     return tensor
+
+
+def visualize_prediction(tensor, probabilities, category_map, top_n=5, logscale=False):
+    """
+    Visualizes machine vision prediction by showing the image with the top predicted 
+    label and a bar plot of the top N category probabilities.
+
+    Parameters
+    ----------
+    tensor : torch.Tensor
+        The input image tensor.
+    probabilities : torch.Tensor
+        The probabilities for each category (1D tensor).
+    category_map : dict
+        A dictionary mapping category index (as string) to category name.
+        Example: {'0': 'dog', '1': 'cat'}
+    top_n : int, optional
+        Number of top categories to display, by default 5.
+    logscale : bool, optional
+        Whether to use a logarithmic scale for the bar plot, by default False.
+
+    Returns
+    -------
+    axes: tuple of matplotlib.axes.Axes
+        The axes objects for further customization or incorporation into larger plots.
+    """
+
+    # in case you got singleton batches
+    probabilities = probabilities.squeeze(0)
+    tensor = tensor.squeeze(0)  # Now shape is (C, H, W)
+    
+    # Ensure top_n doesn't exceed the number of available categories
+    if top_n > len(category_map):
+        logging.warning(f"top_n ({top_n}) is greater than the number of categories "
+                        f"Setting top_n to {len(category_map)}.")
+        top_n = len(category_map)
+        
+
+    # Get the top N probabilities and corresponding category indices
+    top_probs, top_indices = torch.topk(probabilities, top_n)
+    top_labels = [category_map[str(idx)] for idx in top_indices.cpu().numpy()]
+
+    # Get tensor ready to plot
+    tensor = tensor.squeeze(0)  # Now shape is (3, H, W)
+    image = convert_for_plotting(tensor)
+
+    # Plotting
+    fig, axes = plt.subplots(1, 2, figsize=(5, 3))
+
+    # Display the image
+    axes[0].imshow(image)
+    axes[0].axis('off')
+    # Add the top predicted label with confidence score
+    predicted_label = top_labels[0]
+    axes[0].set_title(f'{predicted_label} ({top_probs[0]:0.3f})')
+
+    # Bar plot of probabilities
+    xlabel = 'Log Probability' if logscale else 'Probability'
+    axes[1].barh(top_labels, top_probs.cpu().numpy(), color='skyblue', log=logscale)
+    axes[1].set_xlabel(xlabel, fontsize=12)
+    axes[1].invert_yaxis()  # Highest probability on top
+    axes[1].set_title(f'Top {top_n} Predictions')
+
+    plt.tight_layout()
+
+    return axes
