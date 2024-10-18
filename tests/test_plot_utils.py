@@ -40,6 +40,14 @@ def test_convert_for_plotting_invalid_shape():
 
 
 def test_visualize_prediction(caplog):
+    """
+    Test the visualize_prediction function.
+
+    Verify that a warning is logged when the top_n parameter exceeds the number of available categories,
+    the function returns exactly two objects, each returned object is an instance of matplotlib.axes.Axes.
+
+    Uses caplog fixture to capture log messages emitted during the test.
+    """
     # Mock input tensor (3-channel RGB image of 32x32)
     tensor = torch.rand(1, 3, 32, 32)  # Shape (1, 3, H, W)
 
