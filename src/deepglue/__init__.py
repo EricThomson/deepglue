@@ -16,6 +16,7 @@ from .plot_utils import convert_for_plotting
 from .plot_utils import visualize_prediction
 
 from .file_utils import create_subdirs
+from .file_utils import sample_random_images
 from .file_utils import count_category_by_split
 from .file_utils import count_by_category
 from .file_utils import count_by_split
@@ -33,6 +34,7 @@ __all__ = ["train_one_epoch",
            "visualize_prediction",
            
            "create_subdirs", 
+           "sample_random_images",
            "count_category_by_split",
            "count_by_category",
            "count_by_split"]

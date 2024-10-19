@@ -6,6 +6,7 @@ Module includes functions that are useful for wrangling directories and files.
 
 import os
 from pathlib import Path
+import random
 
 import logging
 logging.getLogger(__name__)
@@ -54,49 +55,47 @@ def create_subdirs(parent_dir, subdirs):
     return new_paths
 
 
-def count_category_by_split(data_path):
+def sample_random_images(data_path, category_map, num_images=1):
     """
-    Counts the number of images in each category within train, validation, and test splits.
-
-    Assumes a directory structure where images are stored in category-specific 
-    subdirectories under 'train', 'valid', and 'test' folders.
+    Randomly sample image paths from a dataset with a standard categorical directory structure.
 
     Parameters
     ----------
-    data_path : Path
-        The path to the directory containing the 'train', 'valid', and 'test' folders.
+    data_path : str or Path
+        Path to the root directory containing category-specific subdirectories.
+    category_map : dict
+        Dictionary mapping category index (as string) to category name:  {'0': 'dog', '1': 'cat'}
+    num_images : int, optional
+        Number of image paths to sample, by default 1.
 
     Returns
     -------
-    num_category_per_split: dict
-        A nested dictionary with keys 'train', 'valid', and 'test', each containing a sub-dictionary 
-        where the keys are category names and the values are the counts of images in each category.
-
-    Raises
-    ------
-    FileNotFoundError
-        If any of the 'train', 'valid', or 'test' directories do not exist at the specified path.
+    List of tuples
+        A list where each tuple contains:
+        - The full path to the image file.
+        - The human-readable category name.
     """
-    logging.info(f"Getting category counts by split in {data_path}")
+    logging.info(f"Selecting {num_images} random images from {data_path}")
 
-    split_types = ['train', 'valid', 'test']
-    num_category_per_split = {}
-    
-    for split_type in split_types:
-        dataset_path = data_path / split_type
-        
-        if not dataset_path.exists():
-            raise FileNotFoundError(f"{dataset_path} does not exist. Please check your directory structure.")
-        
-        num_category_per_split[split_type] = {}
-        
-        for category in os.listdir(dataset_path):
-            category_path = dataset_path / category
-            if category_path.is_dir():
-                num_images = len(list(category_path.glob('*'))) 
-                num_category_per_split[split_type][category] = num_images
+    data_path = Path(data_path) # if string, convert to Path
 
-    return num_category_per_split
+    # Collect all categories and their image paths
+    all_paths_and_categories = []
+    for category_dir in data_path.iterdir():
+        if category_dir.is_dir():
+            category_name = category_map[category_dir.name]
+            all_paths_and_categories.extend((img_path, category_name) for img_path in category_dir.glob('*'))
+
+    total_images = len(all_paths_and_categories)
+
+    # Adjust num_images if it exceeds the available number of images
+    if num_images > total_images:
+        logging.warning(f"Requested {num_images} images, but only {total_images} are available. "
+                        f"Returning all available images.")
+        num_images = total_images
+
+    # Randomly sample the target number of images
+    return random.sample(all_paths_and_categories, num_images)
 
 
 def count_by_category(data_path):
@@ -191,3 +190,48 @@ def count_by_split(data_path):
         num_per_split[split_type] = split_total
 
     return num_per_split
+
+
+def count_category_by_split(data_path):
+    """
+    Counts the number of images in each category within train, validation, and test splits.
+
+    Assumes a directory structure where images are stored in category-specific 
+    subdirectories under 'train', 'valid', and 'test' folders.
+
+    Parameters
+    ----------
+    data_path : Path
+        The path to the directory containing the 'train', 'valid', and 'test' folders.
+
+    Returns
+    -------
+    num_category_per_split: dict
+        A nested dictionary with keys 'train', 'valid', and 'test', each containing a sub-dictionary 
+        where the keys are category names and the values are the counts of images in each category.
+
+    Raises
+    ------
+    FileNotFoundError
+        If any of the 'train', 'valid', or 'test' directories do not exist at the specified path.
+    """
+    logging.info(f"Getting category counts by split in {data_path}")
+
+    split_types = ['train', 'valid', 'test']
+    num_category_per_split = {}
+    
+    for split_type in split_types:
+        dataset_path = data_path / split_type
+        
+        if not dataset_path.exists():
+            raise FileNotFoundError(f"{dataset_path} does not exist. Please check your directory structure.")
+        
+        num_category_per_split[split_type] = {}
+        
+        for category in os.listdir(dataset_path):
+            category_path = dataset_path / category
+            if category_path.is_dir():
+                num_images = len(list(category_path.glob('*'))) 
+                num_category_per_split[split_type][category] = num_images
+
+    return num_category_per_split
