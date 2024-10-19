@@ -2,7 +2,7 @@
 deepGlue: A utility package for deep learning projects.
 """
 
-__version__ = "0.1.4"  
+__version__ = "0.1.5"  
 
 from .training_utils import train_one_epoch
 from .training_utils import validate_one_epoch
@@ -16,9 +16,9 @@ from .plot_utils import convert_for_plotting
 from .plot_utils import visualize_prediction
 
 from .file_utils import create_subdirs
-from .file_utils import get_category_counts_by_split
-from .file_utils import get_samples_per_category
-from .file_utils import get_samples_per_split
+from .file_utils import count_category_by_split
+from .file_utils import count_by_category
+from .file_utils import count_by_split
 
 
 __all__ = ["train_one_epoch",
@@ -33,6 +33,6 @@ __all__ = ["train_one_epoch",
            "visualize_prediction",
            
            "create_subdirs", 
-           "get_category_counts_by_split",
-           "get_samples_per_category",
-           "get_samples_per_split"]
+           "count_category_by_split",
+           "count_by_category",
+           "count_by_split"]

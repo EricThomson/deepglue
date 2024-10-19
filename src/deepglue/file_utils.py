@@ -54,7 +54,7 @@ def create_subdirs(parent_dir, subdirs):
     return new_paths
 
 
-def get_category_counts_by_split(data_path):
+def count_category_by_split(data_path):
     """
     Counts the number of images in each category within train, validation, and test splits.
 
@@ -68,7 +68,7 @@ def get_category_counts_by_split(data_path):
 
     Returns
     -------
-    num_category_by_split: dict
+    num_category_per_split: dict
         A nested dictionary with keys 'train', 'valid', and 'test', each containing a sub-dictionary 
         where the keys are category names and the values are the counts of images in each category.
 
@@ -80,7 +80,7 @@ def get_category_counts_by_split(data_path):
     logging.info(f"Getting category counts by split in {data_path}")
 
     split_types = ['train', 'valid', 'test']
-    num_category_by_split = {}
+    num_category_per_split = {}
     
     for split_type in split_types:
         dataset_path = data_path / split_type
@@ -88,18 +88,18 @@ def get_category_counts_by_split(data_path):
         if not dataset_path.exists():
             raise FileNotFoundError(f"{dataset_path} does not exist. Please check your directory structure.")
         
-        num_category_by_split[split_type] = {}
+        num_category_per_split[split_type] = {}
         
         for category in os.listdir(dataset_path):
             category_path = dataset_path / category
             if category_path.is_dir():
                 num_images = len(list(category_path.glob('*'))) 
-                num_category_by_split[split_type][category] = num_images
+                num_category_per_split[split_type][category] = num_images
 
-    return num_category_by_split
+    return num_category_per_split
 
 
-def get_samples_per_category(data_path):
+def count_by_category(data_path):
     """
     Calculates the total number of images for each category across all splits.
 
@@ -114,7 +114,7 @@ def get_samples_per_category(data_path):
         
     Returns
     -------
-    samples_per_category : dict
+    num_per_category : dict
         A dictionary where keys are category names and values are the total number of images in each category.
 
     Raises
@@ -124,7 +124,7 @@ def get_samples_per_category(data_path):
     """
     logging.info(f"Getting samples per category in {data_path}")
 
-    samples_per_category = {}
+    num_per_category = {}
     split_types = ['train', 'valid', 'test']
 
     for split_type in split_types:
@@ -140,16 +140,16 @@ def get_samples_per_category(data_path):
                 category_name = category_path.name
                 num_images = len(list(category_path.glob('*')))
                 # initialize
-                if category_name not in samples_per_category:
-                    samples_per_category[category_name] = 0
-                samples_per_category[category_name] += num_images
+                if category_name not in num_per_category:
+                    num_per_category[category_name] = 0
+                num_per_category[category_name] += num_images
 
-    return samples_per_category
+    return num_per_category
 
 
-def get_samples_per_split(data_path):
+def count_by_split(data_path):
     """
-    Calculates the total number of samples in train, test, and validation splits, regardless of categories.
+    Calculates the total number of images in train, test, and validation splits, regardless of categories.
 
     This function directly traverses the 'train', 'valid', and 'test' folders and counts all image files,
     providing the total number of samples in each split without considering category distinctions.
@@ -161,7 +161,7 @@ def get_samples_per_split(data_path):
 
     Returns
     -------
-    samples_per_split : dict
+    num_per_split : dict
         A dictionary with keys 'train', 'valid', and 'test', each containing the total number of samples 
         in each split, regardless of category.
 
@@ -172,7 +172,7 @@ def get_samples_per_split(data_path):
     """
     logging.info(f"Getting samples per split in {data_path}")
 
-    samples_per_split = {}
+    num_per_split = {}
     split_types = ['train', 'valid', 'test']
 
     for split_type in split_types:
@@ -188,6 +188,6 @@ def get_samples_per_split(data_path):
                 # Count files in the category directory
                 split_total += len(list(category_dir.glob('*')))
 
-        samples_per_split[split_type] = split_total
+        num_per_split[split_type] = split_total
 
-    return samples_per_split
+    return num_per_split

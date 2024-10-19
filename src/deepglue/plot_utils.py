@@ -118,6 +118,7 @@ def plot_batch(batch_images, batch_targets, category_map, max_to_plot=32, cmap='
     nrows = int(np.ceil(num_to_plot/4))
     
     fig, axes = plt.subplots(nrows=nrows, ncols=4, figsize=(7, 2*(nrows))) # size is width x height
+
     for index, ax in enumerate(axes.flat):
         if index >= num_to_plot:  # TODO: is this really needed?
             break
@@ -127,6 +128,7 @@ def plot_batch(batch_images, batch_targets, category_map, max_to_plot=32, cmap='
         ax.imshow(image, cmap=cmap)
         ax.set_title(category_map[category])
         ax.axis('off')
+
     fig.tight_layout()
 
 
@@ -222,7 +224,7 @@ def convert_for_plotting(tensor):
     return tensor
 
 
-def visualize_prediction(tensor, probabilities, category_map, top_n=5, logscale=False):
+def visualize_prediction(tensor, probabilities, category_map, top_n=5, logscale=False, axes=None, figsize=(5,3)):
     """
     Visualizes machine vision prediction by showing the image with the top predicted 
     label and a bar plot of the top N category probabilities.
@@ -267,7 +269,7 @@ def visualize_prediction(tensor, probabilities, category_map, top_n=5, logscale=
     image = convert_for_plotting(tensor)
 
     # Plotting
-    fig, axes = plt.subplots(1, 2, figsize=(5, 3))
+    fig, axes = plt.subplots(1, 2, figsize=figsize)
 
     # Display the image
     axes[0].imshow(image)
