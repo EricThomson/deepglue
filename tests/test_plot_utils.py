@@ -1,3 +1,4 @@
+# tests/test_plot_utils.py
 import logging
 import matplotlib.pyplot as plt
 import pytest
@@ -61,9 +62,9 @@ def test_visualize_prediction(caplog):
     with caplog.at_level(logging.WARNING):
         axes = visualize_prediction(tensor, probabilities, category_map, top_n=10, logscale=True)
 
-    # assertions (first make sure logger captured warning about top_n being too big)
-    assert any("top_n (10) is greater than the number of categories" in record.message 
-               for record in caplog.records), "Expected warning message not found in logs."
+    # Check that the expected warning was logged
+    assert "top_n (10) is greater than the number of categories" in caplog.text, \
+        "Expected warning message not found in logs."
     assert len(axes) == 2, "Expected two axes to be returned."
     assert isinstance(axes[0], plt.Axes), "First axis should be an instance of plt.Axes."
     assert isinstance(axes[1], plt.Axes), "Second axis should be an instance of plt.Axes."

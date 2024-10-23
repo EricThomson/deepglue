@@ -1,4 +1,5 @@
 # tests/test_file_utils.py
+import logging
 import pytest 
 import shutil
 
@@ -6,6 +7,7 @@ from deepglue.file_utils import create_subdirs
 from deepglue.file_utils import count_category_by_split
 from deepglue.file_utils import count_by_category
 from deepglue.file_utils import count_by_split
+from deepglue.file_utils import sample_random_images
 
 
 @pytest.fixture
@@ -161,3 +163,50 @@ def test_count_by_split(setup_test_split_dirs):
     }
 
     assert counts == expected_counts, "The total sample counts per split do not match the expected values."
+
+
+def test_sample_random_images_across_categories(setup_test_split_dirs):
+    """Test sampling images in the train split."""
+    data_path = setup_test_split_dirs
+    category_map = {'class0': 'class0', 'class1': 'class1'}
+
+    sampled_paths, sampled_categories = sample_random_images(data_path=data_path,
+                                                             category_map=category_map,
+                                                             num_images=4,
+                                                             split_type='train')
+
+    assert len(sampled_paths) == 4
+    assert len(sampled_categories) == 4
+
+
+def test_sample_random_images_from_category(setup_test_split_dirs):
+    """Test sampling images from a specific category in the valid split."""
+    data_path = setup_test_split_dirs
+    category_map = {'class0': 'class0', 'class1': 'class1'}
+
+    sampled_paths, sampled_categories = sample_random_images(data_path=data_path,
+                                                             category_map=category_map,
+                                                             num_images=2,
+                                                             split_type='valid',
+
+                                                             category='class1')
+    # only 2 images were requested
+    assert len(sampled_paths) == 2
+    # makes sure category is the same for all sampled_categories
+    assert all(category == 'class1' for category in sampled_categories)
+
+
+def test_sample_random_images_exceeding_available(setup_test_split_dirs, caplog):
+    """Test sampling more images than available with proper warning."""
+    data_path = setup_test_split_dirs
+    category_map = {'class0': 'class0', 'class1': 'class1'}
+
+    with caplog.at_level(logging.WARNING):
+        sampled_paths, _ = sample_random_images(data_path=data_path,
+                                                category_map=category_map,
+                                                num_images=10,  # Exceeding num available
+                                                split_type='valid',
+                                                category='class0')
+
+    assert len(sampled_paths) == 1  # Only 1 image exists in valid/class0
+    assert "Returning all available images" in caplog.text
