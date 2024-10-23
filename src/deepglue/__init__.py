@@ -1,5 +1,5 @@
 """
-deepGlue: A utility package for deep learning projects.
+deep glue: A utility package for creating deep learning projects with pytorch.
 """
 
 __version__ = "0.1.6"  
@@ -9,8 +9,8 @@ from .training_utils import validate_one_epoch
 from .training_utils import train_and_validate
 from .training_utils import accuracy
 
-from .plot_utils import plot_category_samples
-from .plot_utils import plot_random_images
+from .plot_utils import plot_random_sample
+from .plot_utils import plot_category_sample
 from .plot_utils import plot_batch
 from .plot_utils import plot_transformed
 from .plot_utils import convert_for_plotting
@@ -28,8 +28,8 @@ __all__ = ["train_one_epoch",
            "train_and_validate",
            "accuracy",
            
-           "plot_category_samples",
-           "plot_random_images",
+           "plot_random_sample",
+           "plot_category_sample",
            "plot_batch",
            "plot_transformed",
            "convert_for_plotting",

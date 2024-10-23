@@ -30,7 +30,7 @@ plt.rcParams.update({'figure.titlesize': 16, # suptitle
                     'ytick.labelsize': 10})  # suptitle
 
 
-def plot_category_samples(data_path, category, split_type='train', num_to_plot=16):
+def plot_category_sample(data_path, category, split_type='train', num_to_plot=16):
     """
     Plots a random selection of images from a specific category within a data split.
 
@@ -104,9 +104,9 @@ def plot_category_samples(data_path, category, split_type='train', num_to_plot=1
     return fig, axes
 
 
-def plot_random_images(data_path, category_map, split_type='train', num_to_plot=16):
+def plot_random_sample(data_path, category_map, split_type='train', num_to_plot=16):
     """
-    Plots random samples from a specified data split.
+    Plots random image samples from a specified data split.
 
     Assumes a directory structure where images are stored in category-specific
     subdirectories inside the split folders ('train', 'valid', 'test').
@@ -146,7 +146,7 @@ def plot_random_images(data_path, category_map, split_type='train', num_to_plot=
         ax.set_title(sample_category)
         ax.axis('off') 
     
-    fig.suptitle(f"Random Images from {split_type} split", y=0.96)
+    fig.suptitle(f"Random images from {split_type} split", y=0.96)
     fig.tight_layout()
     
     return fig, axes
