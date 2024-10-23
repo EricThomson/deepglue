@@ -15,7 +15,7 @@ from PIL import Image
 from skimage.color import rgb2gray
 import torch
 
-from deepglue import sample_random_images
+from deepglue.file_utils import sample_random_images
 
 
 # Initialize things
@@ -130,10 +130,10 @@ def plot_random_images(data_path, category_map, split_type='train', num_to_plot=
     axes : array of matplotlib.axes
         An array of matplotlib Axes objects, one for each image subplot.
     """
-    sample_paths, sample_categories = dg.sample_random_images(data_path, 
-                                                              category_map, 
-                                                              split_type=split_type, 
-                                                              num_images=num_to_plot)
+    sample_paths, sample_categories = sample_random_images(data_path, 
+                                                           category_map, 
+                                                           split_type=split_type, 
+                                                           num_images=num_to_plot)
     ncols = 4
     nrows = int(np.ceil(num_to_plot/ncols))
     
