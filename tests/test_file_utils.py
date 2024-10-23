@@ -2,10 +2,10 @@
 import pytest 
 import shutil
 
-from deepglue import create_subdirs
-from deepglue import count_category_by_split
-from deepglue import count_by_category
-from deepglue import count_by_split
+from deepglue.file_utils import create_subdirs
+from deepglue.file_utils import count_category_by_split
+from deepglue.file_utils import count_by_category
+from deepglue.file_utils import count_by_split
 
 
 @pytest.fixture
