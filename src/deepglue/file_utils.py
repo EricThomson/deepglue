@@ -70,23 +70,26 @@ def sample_random_images(data_path, category_map, num_images=1):
 
     Returns
     -------
-    List of tuples
-        A list where each tuple contains:
-        - The full path to the image file.
-        - The human-readable category name.
+    sampled_paths: list
+        len num_images list of paths to images
+    sampled_categories: list
+        len num_images list of corresponding categories 
     """
     logging.info(f"Selecting {num_images} random images from {data_path}")
 
     data_path = Path(data_path) # if string, convert to Path
 
     # Collect all categories and their image paths
-    all_paths_and_categories = []
+    image_paths = []
+    categories = []
     for category_dir in data_path.iterdir():
         if category_dir.is_dir():
             category_name = category_map[category_dir.name]
-            all_paths_and_categories.extend((img_path, category_name) for img_path in category_dir.glob('*'))
+            for img_path in category_dir.glob('*'):
+                image_paths.append(img_path)
+                categories.append(category_name)
 
-    total_images = len(all_paths_and_categories)
+    total_images = len(image_paths)
 
     # Adjust num_images if it exceeds the available number of images
     if num_images > total_images:
@@ -94,8 +97,12 @@ def sample_random_images(data_path, category_map, num_images=1):
                         f"Returning all available images.")
         num_images = total_images
 
-    # Randomly sample the target number of images
-    return random.sample(all_paths_and_categories, num_images)
+    # Randomly sample the requested (or adjusted) number of images
+    sampled_indices = random.sample(range(total_images), num_images)
+    sampled_paths = [image_paths[i] for i in sampled_indices]
+    sampled_categories = [categories[i] for i in sampled_indices]
+
+    return sampled_paths, sampled_categories
 
 
 def count_by_category(data_path):
