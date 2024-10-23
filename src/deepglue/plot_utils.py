@@ -4,18 +4,22 @@ deepglue plot_utils.py
 Module includes functions that are useful for plotting/visualization during different
 deep learning tasks
 """
+import os
+import random
+import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
-import os
+from pathlib import Path
 from PIL import Image
-import random
 from skimage.color import rgb2gray
 import torch
 
-import logging
-logging.getLogger(__name__)
+from deepglue import sample_random_images
 
+
+# Initialize things
+logging.getLogger(__name__)
 
 # Set global style for all plots when the module is imported
 plt.rcParams.update({'figure.titlesize': 16, # suptitle 
@@ -59,48 +63,42 @@ def plot_category_samples(data_path, category, split_type='train', num_to_plot=1
     Returns
     -------
     fig : matplotlib.figure.Figure
-        The figure object containing the plot.
+        The figure object containing the subplots.
     axes : array of matplotlib.axes
-        The axes array containing the individual image subplots.
+        An array of matplotlib Axes objects, one for each image subplot.
     """
     data_path = Path(data_path) # in case it's a string
-    category_path = data_path / split_type / category
+
+    # make a dummy category map for sample_random_images() to work with
+    category_map = {category: category}
     
-    if not category_path.exists():
-        raise FileNotFoundError(f"{category_path} not found please check the path.")
+    # Use dg.sample_random_images() to select the images from the specified category
+    sampled_paths, _ = sample_random_images(data_path=data_path,
+                                            category_map=category_map,
+                                            num_images=num_to_plot,
+                                            split_type=split_type,
+                                            category=category)
 
-    logging.info(f"Pulling samples from {category_path}")
+    if not sampled_paths:
+        raise FileNotFoundError(f"No images found in '{split_type}/{category}'.")
 
-    # List all files (assuming they are images)
-    image_files = list(category_path.glob('*'))
-
-    if not image_files:
-        raise FileNotFoundError(f"No images found in {category_path}.")
-
-    total_images = len(image_files)
-
-    # Warn if requested number of images exceeds available images
-    if num_to_plot > total_images:
-        logging.warning(f"Requested {num_to_plot} images, but only {total_images} are available. "
-                        f"Plotting all available images.")
-        num_to_plot = total_images
+    num_to_plot = len(sampled_paths) # in case too manhy requested
 
     ncols = 4
     nrows = int(np.ceil(num_to_plot/ncols))
-    
-    # list files and select randomly if enough exist
-    image_files = [f for f in os.listdir(category_path)]
-    selected_files = random.sample(image_files, min(num_to_plot, len(image_files)))
-    
     fig, axes = plt.subplots(nrows=nrows, ncols=4, figsize=(6, 1.5*nrows))
 
-    for ax, img_file in zip(axes.flat, selected_files):
+    for ax, img_file in zip(axes.flat, sampled_paths):
         # Load the image
-        img = Image.open(category_path / img_file)
+        img = Image.open(img_file)
         ax.imshow(img)
         ax.axis('off')  # Hide axes for cleaner display
 
-    fig.suptitle(f"Category: {category}", y=0.97)
+    # Hide any unused axes
+    for ax in axes.flat[num_to_plot:]:
+        ax.axis('off')
+
+    fig.suptitle(f"Category: {category} ({split_type} split)", y=0.97)
     fig.tight_layout()
 
     return fig, axes
