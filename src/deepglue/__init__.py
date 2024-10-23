@@ -2,7 +2,7 @@
 deepGlue: A utility package for deep learning projects.
 """
 
-__version__ = "0.1.5"  
+__version__ = "0.1.6"  
 
 from .training_utils import train_one_epoch
 from .training_utils import validate_one_epoch
@@ -10,6 +10,7 @@ from .training_utils import train_and_validate
 from .training_utils import accuracy
 
 from .plot_utils import plot_category_samples
+from .plot_utils import plot_random_images
 from .plot_utils import plot_batch
 from .plot_utils import plot_transformed
 from .plot_utils import convert_for_plotting
@@ -28,6 +29,7 @@ __all__ = ["train_one_epoch",
            "accuracy",
            
            "plot_category_samples",
+           "plot_random_images",
            "plot_batch",
            "plot_transformed",
            "convert_for_plotting",

@@ -104,6 +104,54 @@ def plot_category_samples(data_path, category, split_type='train', num_to_plot=1
     return fig, axes
 
 
+def plot_random_images(data_path, category_map, split_type='train', num_to_plot=16):
+    """
+    Plots random samples from a specified data split.
+
+    Assumes a directory structure where images are stored in category-specific
+    subdirectories inside the split folders ('train', 'valid', 'test').
+
+    Parameters
+    ----------
+    data_path : str or Path
+        The path to the root directory containing the split folders ('train', 'valid', 'test').
+    category_map : dict
+        A dictionary mapping category indices (as strings) to their human-readable
+        labels, e.g., `{'0': 'cat', '1': 'dog'}`.
+    split_type : str, optional
+        The split folder to pull images from ('train', 'valid', 'test'). Defaults to 'train'.
+    num_to_plot : int, optional
+        Number of images to plot. Defaults to 16.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The figure object containing the subplots
+    axes : array of matplotlib.axes
+        An array of matplotlib Axes objects, one for each image subplot.
+    """
+    sample_paths, sample_categories = dg.sample_random_images(data_path, 
+                                                              category_map, 
+                                                              split_type=split_type, 
+                                                              num_images=num_to_plot)
+    ncols = 4
+    nrows = int(np.ceil(num_to_plot/ncols))
+    
+    fig, axes = plt.subplots(nrows=nrows, ncols=4, figsize=(6, 1.5*nrows))
+    
+    for ax, sample_path, sample_category in zip(axes.flat, sample_paths, sample_categories):
+        # Load the image
+        img = Image.open(sample_path)
+        ax.imshow(img)
+        ax.set_title(sample_category)
+        ax.axis('off') 
+    
+    fig.suptitle(f"Random Images from {split_type} split", y=0.96)
+    fig.tight_layout()
+    
+    return fig, axes
+
+
 def plot_batch(batch_images, batch_targets, category_map, max_to_plot=32, cmap='gray'):
     """
     Plots a batch of images, and their corresponding target categories, from a DataLoader.
