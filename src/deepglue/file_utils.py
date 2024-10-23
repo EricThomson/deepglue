@@ -55,18 +55,23 @@ def create_subdirs(parent_dir, subdirs):
     return new_paths
 
 
-def sample_random_images(data_path, category_map, num_images=1):
+def sample_random_images(data_path, category_map, num_images=1, split_type='train', category=None):
     """
     Randomly sample image paths from a dataset with a standard categorical directory structure.
 
     Parameters
     ----------
     data_path : str or Path
-        Path to the root directory containing category-specific subdirectories.
+        Path to the root directory containing the split folders ('train', 'valid', 'test')
     category_map : dict
         Dictionary mapping category index (as string) to category name:  {'0': 'dog', '1': 'cat'}
     num_images : int, optional
         Number of image paths to sample, by default 1.
+    split_type : str, optional
+        The split folder to sample from ('train', 'valid', 'test'). Defaults to 'train'.
+    category : str, optional
+        If specified, only images from this category will be sampled. When default of None is
+        chosen, will select randomly across all categories. 
 
     Returns
     -------
@@ -74,20 +79,43 @@ def sample_random_images(data_path, category_map, num_images=1):
         len num_images list of paths to images
     sampled_categories: list
         len num_images list of corresponding categories 
+
+    Raises
+    ------
+    FileNotFoundError
+        If the specified split or category path does not exist.
+
+    Notes
+    -----
+    - Assumes that each split folder contains only category subdirectories.
+    - If `num_images` exceeds the total available images, all images will be returned, and a warning will be logged.
     """
+    data_path = Path(data_path) 
+    split_path =data_path / split_type
     logging.info(f"Selecting {num_images} random images from {data_path}")
 
-    data_path = Path(data_path) # if string, convert to Path
+    if not split_path.exists():
+        raise FileNotFoundError(f"Split path {split_path} does not exist.")
+    
+    # Set up list of category directories (depends on whether single cat or all)
+    if category is None:
+        # filter out things that aren't directories
+        category_dirs = [category_dir for category_dir in split_path.iterdir() if category_dir.is_dir()]
+    else:
+        # If a specific category is given, construct its path directly
+        category_path = split_path / category
+        if not category_path.is_dir():
+            raise FileNotFoundError(f"Category directory name {category} does not exist in {split_path}.")
+        category_dirs = [category_path]
 
-    # Collect all categories and their image paths
+    # Collect all image paths and their corresponding categories
     image_paths = []
     categories = []
-    for category_dir in data_path.iterdir():
-        if category_dir.is_dir():
-            category_name = category_map[category_dir.name]
-            for img_path in category_dir.glob('*'):
-                image_paths.append(img_path)
-                categories.append(category_name)
+    for category_dir in category_dirs:
+        category_name = category_map[category_dir.name]
+        for img_path in category_dir.glob('*'):
+            image_paths.append(img_path)
+            categories.append(category_name)
 
     total_images = len(image_paths)
 
@@ -97,8 +125,8 @@ def sample_random_images(data_path, category_map, num_images=1):
                         f"Returning all available images.")
         num_images = total_images
 
-    # Randomly sample the requested (or adjusted) number of images
-    sampled_indices = random.sample(range(total_images), num_images)
+    # Randomly sample the requested number of images
+    sampled_indices = random.sample(range(total_images), num_images)  # sample() works on iterable, so we give it range()
     sampled_paths = [image_paths[i] for i in sampled_indices]
     sampled_categories = [categories[i] for i in sampled_indices]
 
