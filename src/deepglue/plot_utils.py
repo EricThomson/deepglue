@@ -30,7 +30,7 @@ plt.rcParams.update({'figure.titlesize': 16, # suptitle
                     'ytick.labelsize': 10})  # suptitle
 
 
-def plot_sample(data_path, category_map, split_type='train', num_to_plot=16):
+def plot_random_sample(data_path, category_map, split_type='train', num_to_plot=16):
     """
     Plots random image samples from a specified data split.
 
@@ -89,7 +89,7 @@ def plot_sample(data_path, category_map, split_type='train', num_to_plot=16):
     return fig, axes
 
 
-def plot_category_sample(data_path, category, split_type='train', num_to_plot=16):
+def plot_random_category_sample(data_path, category, split_type='train', num_to_plot=16):
     """
     Plots a random selection of images from a specific category within a data split.
 
