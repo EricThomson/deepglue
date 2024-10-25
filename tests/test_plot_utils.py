@@ -7,6 +7,7 @@ import pytest
 import torch
 
 from deepglue.plot_utils import plot_sample
+from deepglue.plot_utils import plot_category_sample
 from deepglue.plot_utils import convert_for_plotting  
 from deepglue.plot_utils import visualize_prediction
 
@@ -65,6 +66,7 @@ def create_populated_test_split_dirs(tmp_path):
 
     return tmp_path
 
+
 def test_plot_sample(create_populated_test_split_dirs):
     """Test that plot_sample() runs without error and returns valid objects."""
     data_path = create_populated_test_split_dirs  # Use the temporary test directory fixture
@@ -77,6 +79,22 @@ def test_plot_sample(create_populated_test_split_dirs):
     assert isinstance(fig, plt.Figure), "Expected a matplotlib Figure object."
     assert isinstance(axes, np.ndarray), "Expected an ndarray of Axes objects."
     assert all(isinstance(ax, plt.Axes) for ax in axes.flat), "All elements should be Axes."
+
+    plt.close(fig)  # Close the plot to avoid memory leaks
+
+
+def test_plot_category_sample(create_populated_test_split_dirs):
+    """Test that plot_category_sample() runs without error and returns valid objects."""
+    data_path = create_populated_test_split_dirs  # Use the temporary test directory fixture
+
+    # Call the function with one category
+    fig, axes = plot_category_sample(data_path, category='class0', split_type='train', num_to_plot=2)
+
+    assert isinstance(fig, plt.Figure), "Expected a matplotlib Figure object."
+    assert isinstance(axes, np.ndarray), "Expected an ndarray of Axes objects."
+    assert all(isinstance(ax, plt.Axes) for ax in axes.flat), "All elements should be Axes."
+    expected_title = f"Category: class0 (train split)"
+    assert fig._suptitle.get_text() == expected_title, "Plot title does not match the expected category."
 
     plt.close(fig)  # Close the plot to avoid memory leaks
 
