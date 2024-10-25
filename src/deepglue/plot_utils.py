@@ -30,12 +30,12 @@ plt.rcParams.update({'figure.titlesize': 16, # suptitle
                     'ytick.labelsize': 10})  # suptitle
 
 
-def plot_category_sample(data_path, category, split_type='train', num_to_plot=16):
+def plot_sample(data_path, category_map, split_type='train', num_to_plot=16):
     """
-    Plots a random selection of images from a specific category within a data split.
+    Plots random image samples from a specified data split.
 
-    Assumes a directory structure where images are stored in category-specific 
-    subdirectories under split folders (e.g., 'train', 'valid', 'test'):
+    Assumes a directory structure where images are stored in category-specific
+    subdirectories inside the split folders ('train', 'valid', 'test').
 
         data_path/
             train/
@@ -47,6 +47,54 @@ def plot_category_sample(data_path, category, split_type='train', num_to_plot=16
             test/
                 cat/
                 dog/
+
+    Parameters
+    ----------
+    data_path : str or Path
+        The path to the root directory containing the split folders ('train', 'valid', 'test').
+    category_map : dict
+        A dictionary mapping category indices (as strings) to their human-readable
+        labels, e.g., `{'0': 'cat', '1': 'dog'}`.
+    split_type : str, optional
+        The split folder to pull images from ('train', 'valid', 'test'). Defaults to 'train'.
+    num_to_plot : int, optional
+        Number of images to plot. Defaults to 16.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The figure object containing the subplots
+    axes : array of matplotlib.axes
+        An array of matplotlib Axes objects, one for each image subplot.
+    """
+    sample_paths, sample_categories = sample_random_images(data_path, 
+                                                           category_map, 
+                                                           split_type=split_type, 
+                                                           num_images=num_to_plot)
+    ncols = 4
+    nrows = int(np.ceil(num_to_plot/ncols))
+    
+    fig, axes = plt.subplots(nrows=nrows, ncols=4, figsize=(6, 1.5*nrows))
+    
+    for ax, sample_path, sample_category in zip(axes.flat, sample_paths, sample_categories):
+        # Load the image
+        img = Image.open(sample_path)
+        ax.imshow(img)
+        ax.set_title(sample_category)
+        ax.axis('off') 
+    
+    fig.suptitle(f"Random images from {split_type} split", y=0.96)
+    fig.tight_layout()
+    
+    return fig, axes
+
+
+def plot_category_sample(data_path, category, split_type='train', num_to_plot=16):
+    """
+    Plots a random selection of images from a specific category within a data split.
+
+    Assumes a directory structure where images are stored in category-specific 
+    subdirectories under split folders (e.g., 'train', 'valid', 'test'):
 
     Parameters
     ----------
@@ -101,54 +149,6 @@ def plot_category_sample(data_path, category, split_type='train', num_to_plot=16
     fig.suptitle(f"Category: {category} ({split_type} split)", y=0.97)
     fig.tight_layout()
 
-    return fig, axes
-
-
-def plot_random_sample(data_path, category_map, split_type='train', num_to_plot=16):
-    """
-    Plots random image samples from a specified data split.
-
-    Assumes a directory structure where images are stored in category-specific
-    subdirectories inside the split folders ('train', 'valid', 'test').
-
-    Parameters
-    ----------
-    data_path : str or Path
-        The path to the root directory containing the split folders ('train', 'valid', 'test').
-    category_map : dict
-        A dictionary mapping category indices (as strings) to their human-readable
-        labels, e.g., `{'0': 'cat', '1': 'dog'}`.
-    split_type : str, optional
-        The split folder to pull images from ('train', 'valid', 'test'). Defaults to 'train'.
-    num_to_plot : int, optional
-        Number of images to plot. Defaults to 16.
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        The figure object containing the subplots
-    axes : array of matplotlib.axes
-        An array of matplotlib Axes objects, one for each image subplot.
-    """
-    sample_paths, sample_categories = sample_random_images(data_path, 
-                                                           category_map, 
-                                                           split_type=split_type, 
-                                                           num_images=num_to_plot)
-    ncols = 4
-    nrows = int(np.ceil(num_to_plot/ncols))
-    
-    fig, axes = plt.subplots(nrows=nrows, ncols=4, figsize=(6, 1.5*nrows))
-    
-    for ax, sample_path, sample_category in zip(axes.flat, sample_paths, sample_categories):
-        # Load the image
-        img = Image.open(sample_path)
-        ax.imshow(img)
-        ax.set_title(sample_category)
-        ax.axis('off') 
-    
-    fig.suptitle(f"Random images from {split_type} split", y=0.96)
-    fig.tight_layout()
-    
     return fig, axes
 
 

@@ -9,7 +9,7 @@ from .training_utils import validate_one_epoch
 from .training_utils import train_and_validate
 from .training_utils import accuracy
 
-from .plot_utils import plot_random_sample
+from .plot_utils import plot_sample
 from .plot_utils import plot_category_sample
 from .plot_utils import plot_batch
 from .plot_utils import plot_transformed
@@ -28,7 +28,7 @@ __all__ = ["train_one_epoch",
            "train_and_validate",
            "accuracy",
            
-           "plot_random_sample",
+           "plot_sample",
            "plot_category_sample",
            "plot_batch",
            "plot_transformed",

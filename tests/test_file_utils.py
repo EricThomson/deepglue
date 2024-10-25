@@ -38,20 +38,22 @@ def setup_test_split_dirs(tmp_path):
     tmp_path: Path
         The path to the temporary data directory.
     """
-    # Create the train, valid, and test directories with class1 and class2
+    # Define the categories and the number of images per split
     split_types = ['train', 'valid', 'test']
-    category_counts = {
-        'class0': [3, 1, 0],  # Number of images in train, valid, test
-        'class1': [2, 4, 3]
+    category_image_counts = {
+        'class0': [3, 1, 0],  # Train: 3, Valid: 1, Test: 0
+        'class1': [2, 4, 3]   # Train: 2, Valid: 4, Test: 3
     }
 
-    for split, counts in zip(split_types, zip(*category_counts.values())):
-        split_dir = tmp_path / split
-        split_dir.mkdir()
-        for category, count in zip(category_counts.keys(), counts):
+    # Iterate through categories first, then through the splits
+    for category, image_counts in category_image_counts.items():
+        for split, count in zip(split_types, image_counts):
+            # Create the split and category directories
+            split_dir = tmp_path / split
             category_dir = split_dir / category
-            category_dir.mkdir()
-            # Create the specified number of image files in each category
+            category_dir.mkdir(parents=True, exist_ok=True)
+
+            # Create the specified number of dummy image files
             for i in range(count):
                 (category_dir / f'image_{i}.png').touch()
 
