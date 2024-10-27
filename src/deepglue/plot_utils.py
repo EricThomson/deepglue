@@ -4,15 +4,12 @@ deepglue plot_utils.py
 Module includes functions that are useful for plotting/visualization during different
 deep learning tasks
 """
-import os
-import random
 import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 from PIL import Image
-from skimage.color import rgb2gray
 import torch
 
 from deepglue.file_utils import sample_random_images
@@ -201,7 +198,6 @@ def plot_batch(batch_images, batch_targets, category_map, max_to_plot=32, cmap='
     fig.tight_layout()
 
 
-
 def plot_transformed(original_image, transform, cmap=None, num_to_plot=4):
     """
     Plot the original image and pytorch transformations applied to it.
@@ -356,4 +352,4 @@ def visualize_prediction(tensor, probabilities, category_map, top_n=5, logscale=
 
     plt.tight_layout()
 
-    return axes
+    return fig, axes
