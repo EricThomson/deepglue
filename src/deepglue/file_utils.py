@@ -6,10 +6,13 @@ Module includes functions that are useful for wrangling directories and files.
 
 import os
 from pathlib import Path
+from PIL import Image
 import random
+import torch
 
 import logging
 logging.getLogger(__name__)
+
 
 def create_subdirs(parent_dir, subdirs):
     """

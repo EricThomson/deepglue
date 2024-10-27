@@ -5,6 +5,7 @@ Functions that are useful for training deep networks, including validation and t
 """
 import numpy as np
 import torch
+from torch.nn.functional import softmax
 
 import logging
 logging.getLogger(__name__)

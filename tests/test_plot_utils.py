@@ -93,7 +93,7 @@ def test_plot_random_category_sample(create_populated_test_split_dirs):
     assert isinstance(fig, plt.Figure), "Expected a matplotlib Figure object."
     assert isinstance(axes, np.ndarray), "Expected an ndarray of Axes objects."
     assert all(isinstance(ax, plt.Axes) for ax in axes.flat), "All elements should be Axes."
-    expected_title = f"Category: class0 (train split)"
+    expected_title = "Category: class0 (train split)"
     assert fig._suptitle.get_text() == expected_title, "Plot title does not match the expected category."
 
     plt.close(fig)  # Close the plot to avoid memory leaks
