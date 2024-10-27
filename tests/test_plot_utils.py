@@ -6,8 +6,8 @@ from PIL import Image
 import pytest
 import torch
 
-from deepglue.plot_utils import plot_sample
-from deepglue.plot_utils import plot_category_sample
+from deepglue.plot_utils import plot_random_sample
+from deepglue.plot_utils import plot_random_category_sample
 from deepglue.plot_utils import convert_for_plotting  
 from deepglue.plot_utils import visualize_prediction
 
@@ -67,13 +67,13 @@ def create_populated_test_split_dirs(tmp_path):
     return tmp_path
 
 
-def test_plot_sample(create_populated_test_split_dirs):
+def test_plot_random_sample(create_populated_test_split_dirs):
     """Test that plot_sample() runs without error and returns valid objects."""
     data_path = create_populated_test_split_dirs  # Use the temporary test directory fixture
     category_map = {'class0': 'category0', 'class1': 'category1'}
 
     # Call the function and check the returned objects
-    fig, axes = plot_sample(data_path, category_map, split_type='train', num_to_plot=4)
+    fig, axes = plot_random_sample(data_path, category_map, split_type='train', num_to_plot=4)
 
     # Assertions to ensure valid matplotlib objects are returned
     assert isinstance(fig, plt.Figure), "Expected a matplotlib Figure object."
@@ -83,12 +83,12 @@ def test_plot_sample(create_populated_test_split_dirs):
     plt.close(fig)  # Close the plot to avoid memory leaks
 
 
-def test_plot_category_sample(create_populated_test_split_dirs):
+def test_plot_random_category_sample(create_populated_test_split_dirs):
     """Test that plot_category_sample() runs without error and returns valid objects."""
     data_path = create_populated_test_split_dirs  # Use the temporary test directory fixture
 
     # Call the function with one category
-    fig, axes = plot_category_sample(data_path, category='class0', split_type='train', num_to_plot=2)
+    fig, axes = plot_random_category_sample(data_path, category='class0', split_type='train', num_to_plot=2)
 
     assert isinstance(fig, plt.Figure), "Expected a matplotlib Figure object."
     assert isinstance(axes, np.ndarray), "Expected an ndarray of Axes objects."
