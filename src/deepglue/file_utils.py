@@ -133,6 +133,26 @@ def sample_random_images(data_path, category_map, num_images=1, split_type='trai
     return sampled_paths, sampled_categories
 
 
+def load_images_for_model(image_paths, transform):
+    """
+    Loads a list of image paths, returns a tensor suitable for model input.
+
+    Parameters
+    ----------
+    image_paths : list of str or Paths
+        List of image file paths.
+    transform : torchvision.transforms.Compose
+        The transformations to apply to each image.
+
+    Returns
+    -------
+    torch.Tensor
+        A batch of images as a tensor of shape (batch_size, 3, H, W).
+    """
+    images = [transform(Image.open(image_path).convert("RGB")) for image_path in image_paths]
+    return torch.stack(images)
+
+
 def count_by_category(data_path):
     """
     Calculates the total number of images for each category across all splits.
