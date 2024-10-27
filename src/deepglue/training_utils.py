@@ -257,6 +257,35 @@ def train_and_validate(model,
     return model, history  # Return both the trained model and the history
 
 
+def predict_batch(model, image_batch, device='cuda'):
+    """
+    Predicts the categories for a batch of images: useful for probing accuracy and getting metrics. 
+
+    Parameters
+    ----------
+    model : torch.nn.Module
+        Trained PyTorch model (e.g., ResNet50).
+    image_batch : torch.Tensor
+        A batch of images of shape (batch_size, 3, H, W).
+
+    Returns
+    -------
+    probabilities: torch.Tensor
+        Predicted probabilities for each image in the batch.
+    """
+    if device not in ['cuda', 'cpu']:
+        raise ValueError(f"Invalid device: {device}. Use 'cuda' or 'cpu'.")
+        
+    model = model.to(device)
+    image_batch = image_batch.to(device)
+    
+    model.eval()
+    with torch.no_grad():
+        logits = model(image_batch)
+        probabilities = softmax(logits, dim=1)
+    return probabilities
+
+
 def accuracy(output, target, topk=(1,)):
     """
     Computes the accuracy over the k top predictions for the specified values of k.
