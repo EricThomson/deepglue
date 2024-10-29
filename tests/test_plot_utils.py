@@ -151,13 +151,14 @@ def test_visualize_prediction(caplog):
 
     # Capture logging output during the function call
     with caplog.at_level(logging.WARNING):
-        axes = visualize_prediction(tensor, probabilities, category_map, top_n=10, logscale=True)
+        fig, axes = visualize_prediction(tensor, probabilities, category_map, top_n=10, logscale=True)
 
     # Check that the expected warning was logged
     assert "top_n (10) is greater than the number of categories" in caplog.text, \
         "Expected warning message not found in logs."
     assert len(axes) == 2, "Expected two axes to be returned."
-    assert isinstance(axes[0], plt.Axes), "First axis should be an instance of plt.Axes."
-    assert isinstance(axes[1], plt.Axes), "Second axis should be an instance of plt.Axes."
+    assert isinstance(fig, plt.Figure), "Expected a matplotlib Figure object."
+    assert isinstance(axes, np.ndarray), "Expected an ndarray of Axes objects."
+    assert all(isinstance(ax, plt.Axes) for ax in axes.flat), "All elements should be Axes."
 
     plt.close()  # Close the plot to avoid memory leaks

@@ -5,7 +5,6 @@ Module includes functions that are useful for plotting/visualization during diff
 deep learning tasks
 """
 import logging
-
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
@@ -23,8 +22,8 @@ plt.rcParams.update({'figure.titlesize': 16, # suptitle
                      'axes.titlesize': 14, # individual plot titles
                     'axes.labelsize': 12,  # x and y labels
                     'legend.fontsize': 10.5, # legend labels 
-                    'xtick.labelsize': 10, # x- and y-tick labels are smallest
-                    'ytick.labelsize': 10})  # suptitle
+                    'xtick.labelsize': 10, # x-tick labels 
+                    'ytick.labelsize': 10})  
 
 
 def plot_random_sample(data_path, category_map, split_type='train', num_to_plot=16):
