@@ -18,8 +18,8 @@ from deepglue.file_utils import sample_random_images
 logging.getLogger(__name__)
 
 # Set global style for all plots when the module is imported
-plt.rcParams.update({'figure.titlesize': 16, # suptitle 
-                     'axes.titlesize': 14, # individual plot titles
+plt.rcParams.update({'figure.titlesize': 14, # suptitle 
+                     'axes.titlesize': 12, # individual plot titles
                     'axes.labelsize': 12,  # x and y labels
                     'legend.fontsize': 10.5, # legend labels 
                     'xtick.labelsize': 10, # x-tick labels 
@@ -288,7 +288,7 @@ def convert_for_plotting(tensor):
     return tensor
 
 
-def visualize_prediction(tensor, probabilities, category_map, top_n=5, logscale=False, axes=None, figsize=(5,3)):
+def visualize_prediction(tensor, probabilities, category_map, true_label=None, top_n=5, logscale=False, axes=None, figsize=(5,3)):
     """
     Visualizes machine vision prediction by showing the image with the top predicted 
     label and a bar plot of the top N category probabilities.
@@ -302,6 +302,8 @@ def visualize_prediction(tensor, probabilities, category_map, top_n=5, logscale=
     category_map : dict
         A dictionary mapping category index (as string) to category name.
         Example: {'0': 'dog', '1': 'cat'}
+    true_label: str, optional
+        The actual category label of the image (e.g., 'dog'), default None
     top_n : int, optional
         Number of top categories to display, by default 5.
     logscale : bool, optional
@@ -309,8 +311,8 @@ def visualize_prediction(tensor, probabilities, category_map, top_n=5, logscale=
 
     Returns
     -------
-    axes: tuple of matplotlib.axes.Axes
-        The axes objects for further customization or incorporation into larger plots.
+    fig, axes : fig and axes objects
+        The figure and axes objects for further customization or incorporation into larger plots.
     """
 
     # in case you got singleton batches
@@ -337,17 +339,19 @@ def visualize_prediction(tensor, probabilities, category_map, top_n=5, logscale=
 
     # Display the image
     axes[0].imshow(image)
-    axes[0].axis('off')
-    # Add the top predicted label with confidence score
     predicted_label = top_labels[0]
-    axes[0].set_title(f'{predicted_label} ({top_probs[0]:0.3f})')
+    axes[0].set(xticks=[], yticks=[]) # for cleaner image plot
+    axes[0].set_xlabel(f"Est: {predicted_label} ({top_probs[0]:0.2f})")
+    if true_label:
+        axes[0].set_title(f"Actual: {true_label}")
+
 
     # Bar plot of probabilities
-    xlabel = 'Log Probability' if logscale else 'Probability'
+    xlabel = "Log Probability" if logscale else "Probability"
     axes[1].barh(top_labels, top_probs.cpu().numpy(), color='skyblue', log=logscale)
     axes[1].set_xlabel(xlabel, fontsize=12)
     axes[1].invert_yaxis()  # Highest probability on top
-    axes[1].set_title(f'Top {top_n} Predictions')
+    axes[1].set_title(f"Top {top_n} Predictions")
 
     plt.tight_layout()
 
