@@ -5,6 +5,7 @@ Module includes functions that are useful for plotting/visualization during diff
 deep learning tasks
 """
 import logging
+import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
@@ -288,71 +289,88 @@ def convert_for_plotting(tensor):
     return tensor
 
 
-def visualize_prediction(tensor, probabilities, category_map, true_label=None, top_n=5, logscale=False, axes=None, figsize=(5,3)):
+def visualize_prediction(tensor, probabilities, category_map, 
+                         true_label=None, top_n=5, logscale=True, 
+                         axes=None, figsize=(6, 3), background_color='azure', bar_color='skyblue'):
     """
-    Visualizes machine vision prediction by showing the image with the top predicted 
-    label and a bar plot of the top N category probabilities.
+    Visualize classifier prediction: displays image on left and bar plot of N category probabilities on right.
 
     Parameters
     ----------
     tensor : torch.Tensor
-        The input image tensor.
+        The input image tensor (CxHxW).
     probabilities : torch.Tensor
-        The probabilities for each category (1D tensor).
+        Prediction probabilities for each category (1D tensor).
     category_map : dict
-        A dictionary mapping category index (as string) to category name.
-        Example: {'0': 'dog', '1': 'cat'}
-    true_label: str, optional
-        The actual category label of the image (e.g., 'dog'), default None
+        A mapping of category indices (as strings) to their respective labels.
+        Example: {'0': 'cat', '1': 'dog'}.
+    true_label : str, optional
+        The actual category label of the image, if known (e.g., 'dog'). Default is None.
     top_n : int, optional
-        Number of top categories to display, by default 5.
+        The top n class probabilities to display from the classifier, default is 5.
     logscale : bool, optional
-        Whether to use a logarithmic scale for the bar plot, by default False.
+        If True, the bar plot uses a logarithmic scale. Default is True.
+    axes : tuple of matplotlib.axes.Axes, optional
+        Tuple containing the parent axis, image axis, and bar plot axis. 
+        If None, new axes are created. Default is None.
+    figsize : tuple, optional
+        Size of the figure in inches. Default is (6, 3).
+    background_color : str, optional
+        Background color for the parent axis. Default is 'azure'.
+    bar_color : str, optional
+        Color for the bars in the bar plot. Default is 'skyblue'.
 
     Returns
     -------
-    fig, axes : fig and axes objects
-        The figure and axes objects for further customization or incorporation into larger plots.
-    """
+    fig : matplotlib.figure.Figure
+        The figure object for further customization or saving.
+    axes : tuple of matplotlib.axes.Axes
+        A tuple containing the parent axis, image axis, and bar plot axis.
 
-    # in case you got singleton batches
+    """
+    # Handle any stray tensor dimensions
     probabilities = probabilities.squeeze(0)
-    tensor = tensor.squeeze(0)  # Now shape is (C, H, W)
-    
+    tensor = tensor.squeeze(0)
+
     # Ensure top_n doesn't exceed the number of available categories
     if top_n > len(category_map):
         logging.warning(f"top_n ({top_n}) is greater than the number of categories "
                         f"Setting top_n to {len(category_map)}.")
         top_n = len(category_map)
         
-
-    # Get the top N probabilities and corresponding category indices
+    # Get top predictions
     top_probs, top_indices = torch.topk(probabilities, top_n)
     top_labels = [category_map[str(idx)] for idx in top_indices.cpu().numpy()]
-
-    # Get tensor ready to plot
-    tensor = tensor.squeeze(0)  # Now shape is (3, H, W)
+    predicted_label = top_labels[0]
     image = convert_for_plotting(tensor)
 
-    # Plotting
-    fig, axes = plt.subplots(1, 2, figsize=figsize)
+    if axes is None:
+        fig = plt.figure(figsize=figsize, layout="constrained")
+        
+        # Create parent axis covering entire space, including titles/labels
+        parent_ax = fig.add_axes([0, 0, 1, 1], facecolor=background_color)
+        parent_ax.set_xticks([])
+        parent_ax.set_yticks([])
 
-    # Display the image
-    axes[0].imshow(image)
-    predicted_label = top_labels[0]
-    axes[0].set(xticks=[], yticks=[]) # for cleaner image plot
-    axes[0].set_xlabel(f"Est: {predicted_label} ({top_probs[0]:0.2f})")
+        # Create GridSpec within the parent axis for image and bar plot
+        gs = gridspec.GridSpec(1, 2, figure=fig, wspace=0.001)  #wspace controls space between image/bar 
+        img_ax = fig.add_subplot(gs[0])
+        bar_ax = fig.add_subplot(gs[1])
+    else:
+        fig = plt.gcf()
+        parent_ax, img_ax, bar_ax = axes
+
+    # Plot the image
+    img_ax.imshow(image)
+    img_ax.set(xticks=[], yticks=[])
+    img_ax.set_xlabel(f"Est: {predicted_label} ({top_probs[0]:.2f})")  
     if true_label:
-        axes[0].set_title(f"Actual: {true_label}")
+        img_ax.set_title(f"Actual: {true_label}")    
 
+    # Plot the bar chart of top n probabilities
+    bar_ax.barh(top_labels, top_probs.cpu().numpy(), color=bar_color, log=logscale)
+    bar_ax.set_xlabel("Log Probability" if logscale else "Probability")
+    bar_ax.invert_yaxis() # high on top
+    bar_ax.set_title(f"Top {top_n} Predictions")
 
-    # Bar plot of probabilities
-    xlabel = "Log Probability" if logscale else "Probability"
-    axes[1].barh(top_labels, top_probs.cpu().numpy(), color='skyblue', log=logscale)
-    axes[1].set_xlabel(xlabel, fontsize=12)
-    axes[1].invert_yaxis()  # Highest probability on top
-    axes[1].set_title(f"Top {top_n} Predictions")
-
-    plt.tight_layout()
-
-    return fig, axes
+    return fig, (parent_ax, img_ax, bar_ax)
