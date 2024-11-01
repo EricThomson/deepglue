@@ -5,7 +5,6 @@ Module includes functions that are useful for plotting/visualization during diff
 deep learning tasks
 """
 import logging
-import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
