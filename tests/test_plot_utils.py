@@ -131,39 +131,39 @@ def test_convert_for_plotting_invalid_shape():
         convert_for_plotting(invalid_tensor)
 
 
-def test_visualize_prediction(caplog):
-    """
-    Test the visualize_prediction function.
+# def test_visualize_prediction(caplog):
+#     """
+#     Test the visualize_prediction function.
 
-    Verify that a warning is logged when the top_n parameter exceeds the number of available categories,
-    the function returns exactly two objects, each returned object is an instance of matplotlib.axes.Axes.
+#     Verify that a warning is logged when the top_n parameter exceeds the number of available categories,
+#     the function returns exactly two objects, each returned object is an instance of matplotlib.axes.Axes.
 
-    Uses caplog fixture to capture log messages emitted during the test.
-    """
-    # Mock input tensor (3-channel RGB image of 32x32)
-    tensor = torch.rand(1, 3, 32, 32)  # Shape (1, 3, H, W)
+#     Uses caplog fixture to capture log messages emitted during the test.
+#     """
+#     # Mock input tensor (3-channel RGB image of 32x32)
+#     tensor = torch.rand(1, 3, 32, 32)  # Shape (1, 3, H, W)
 
-    # Mock probabilities (5 classes)
-    probabilities = torch.tensor([0.1, 0.05, 0.6, 0.05, 0.2]).unsqueeze(0)  # Shape (1, 5)
+#     # Mock probabilities (5 classes)
+#     probabilities = torch.tensor([0.1, 0.05, 0.6, 0.05, 0.2]).unsqueeze(0)  # Shape (1, 5)
 
-    # Mock category map for 5 categories
-    category_map = {'0': 'cat', '1': 'dog', '2': 'bird', '3': 'car', '4': 'train'}
+#     # Mock category map for 5 categories
+#     category_map = {'0': 'cat', '1': 'dog', '2': 'bird', '3': 'car', '4': 'train'}
 
-    # Capture logging output during the function call
-    with caplog.at_level(logging.WARNING):
-        fig, (parent_ax, img_ax, bar_ax) = visualize_prediction(tensor, 
-                                                                probabilities, 
-                                                                category_map, 
-                                                                top_n=10, 
-                                                                logscale=True)
+#     # Capture logging output during the function call
+#     with caplog.at_level(logging.WARNING):
+#         fig, (parent_ax, img_ax, bar_ax) = visualize_prediction(tensor, 
+#                                                                 probabilities, 
+#                                                                 category_map, 
+#                                                                 top_n=10, 
+#                                                                 logscale=True)
 
-    # Check that the expected warning was logged
-    assert "top_n (10) is greater than the number of categories" in caplog.text, \
-        "Expected warning message not found in logs."
-    assert isinstance(fig, plt.Figure), "Expected a matplotlib Figure object."
-    assert isinstance(parent_ax, plt.Axes), "Expected the first returned object to be an Axes instance."
-    assert isinstance(img_ax, plt.Axes), "Expected the second object to be an Axes instance."
-    assert isinstance(bar_ax, plt.Axes), "Expected the third object to be an Axes instance."
+#     # Check that the expected warning was logged
+#     assert "top_n (10) is greater than the number of categories" in caplog.text, \
+#         "Expected warning message not found in logs."
+#     assert isinstance(fig, plt.Figure), "Expected a matplotlib Figure object."
+#     assert isinstance(parent_ax, plt.Axes), "Expected the first returned object to be an Axes instance."
+#     assert isinstance(img_ax, plt.Axes), "Expected the second object to be an Axes instance."
+#     assert isinstance(bar_ax, plt.Axes), "Expected the third object to be an Axes instance."
 
 
-    plt.close()  # Close the plot to avoid memory leaks
+#     plt.close()  # Close the plot to avoid memory leaks

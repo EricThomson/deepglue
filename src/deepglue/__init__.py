@@ -15,7 +15,9 @@ from .plot_utils import plot_random_category_sample
 from .plot_utils import plot_batch
 from .plot_utils import plot_transformed
 from .plot_utils import convert_for_plotting
-from .plot_utils import visualize_prediction
+from .plot_utils import plot_prediction_image
+from .plot_utils import plot_prediction_probs
+from .plot_utils import plot_prediction_grid
 
 from .file_utils import create_subdirs
 from .file_utils import load_images_for_model
@@ -36,8 +38,10 @@ __all__ = ["train_one_epoch",
            "plot_batch",
            "plot_transformed",
            "convert_for_plotting",
-           "visualize_prediction",
-           
+           "plot_prediction_image",
+           "plot_prediction_probs",
+           "plot_prediction_grid",
+
            "create_subdirs", 
            "load_images_for_model",
            "sample_random_images",
