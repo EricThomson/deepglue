@@ -444,7 +444,7 @@ def plot_prediction_grid(images, probability_matrix, true_categories, category_m
 
     Note
     ----
-    Inspired by similar visualization tool created by Nuevo Foundation:
+    Inspired by similar visualization created by the Nuevo Foundation:
     https://workshops.nuevofoundation.org/python-tensorflow/plotting_model/
     """
     num_predictions = len(true_categories)
@@ -489,7 +489,7 @@ def plot_prediction_grid(images, probability_matrix, true_categories, category_m
         prob_ax.set_title("")
         prob_ax.set_xlabel("")
 
-    # Make unused axes invisible by flattening and iterating
+    # Remove unused axes 
     for unused_ax in axes.flatten()[num_predictions * subplots_per_prediction:]:
         unused_ax.axis("off")
         

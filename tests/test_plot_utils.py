@@ -9,7 +9,7 @@ import torch
 from deepglue.plot_utils import plot_random_sample
 from deepglue.plot_utils import plot_random_category_sample
 from deepglue.plot_utils import convert_for_plotting  
-from deepglue.plot_utils import visualize_prediction
+from deepglue.plot_utils import plot_prediction_grid
 
 
 @pytest.fixture
@@ -131,39 +131,26 @@ def test_convert_for_plotting_invalid_shape():
         convert_for_plotting(invalid_tensor)
 
 
-# def test_visualize_prediction(caplog):
-#     """
-#     Test the visualize_prediction function.
+def test_plot_prediction_grid():
+    # Mock data setup
+    num_predictions = 11
+    images = torch.rand(num_predictions, 3, 32, 32)  # Mock images with shape (11, 3, 32, 32)
+    probability_matrix = torch.rand(num_predictions, 10)  # 10 categories with random probabilities
+    true_categories = [f"label_{i}" for i in range(num_predictions)]  # Mock labels
+    category_map = {str(i): f"category_{i}" for i in range(10)}  # Mock category map for 10 categories
+    
+    # Run the function
+    predictions_per_row = 2
+    subplots_per_prediction = 2  # Image + bar plot 
+    ncols = predictions_per_row * subplots_per_prediction
+    nrows = int(np.ceil(num_predictions / predictions_per_row))
+    fig, axes = plot_prediction_grid(images, probability_matrix, true_categories, category_map, top_n=5)
 
-#     Verify that a warning is logged when the top_n parameter exceeds the number of available categories,
-#     the function returns exactly two objects, each returned object is an instance of matplotlib.axes.Axes.
+    # Basic assertions
+    assert isinstance(fig, plt.Figure), "Expected a matplotlib Figure object."
+    assert all(isinstance(ax, plt.Axes) for ax in axes.flatten()), "All elements should be Axes."
 
-#     Uses caplog fixture to capture log messages emitted during the test.
-#     """
-#     # Mock input tensor (3-channel RGB image of 32x32)
-#     tensor = torch.rand(1, 3, 32, 32)  # Shape (1, 3, H, W)
+    # Check that the shape of the axes matches the expected grid layout
+    assert axes.shape == (nrows, ncols), f"Expected axes shape ({nrows}, {ncols}), got {axes.shape}."
 
-#     # Mock probabilities (5 classes)
-#     probabilities = torch.tensor([0.1, 0.05, 0.6, 0.05, 0.2]).unsqueeze(0)  # Shape (1, 5)
-
-#     # Mock category map for 5 categories
-#     category_map = {'0': 'cat', '1': 'dog', '2': 'bird', '3': 'car', '4': 'train'}
-
-#     # Capture logging output during the function call
-#     with caplog.at_level(logging.WARNING):
-#         fig, (parent_ax, img_ax, bar_ax) = visualize_prediction(tensor, 
-#                                                                 probabilities, 
-#                                                                 category_map, 
-#                                                                 top_n=10, 
-#                                                                 logscale=True)
-
-#     # Check that the expected warning was logged
-#     assert "top_n (10) is greater than the number of categories" in caplog.text, \
-#         "Expected warning message not found in logs."
-#     assert isinstance(fig, plt.Figure), "Expected a matplotlib Figure object."
-#     assert isinstance(parent_ax, plt.Axes), "Expected the first returned object to be an Axes instance."
-#     assert isinstance(img_ax, plt.Axes), "Expected the second object to be an Axes instance."
-#     assert isinstance(bar_ax, plt.Axes), "Expected the third object to be an Axes instance."
-
-
-#     plt.close()  # Close the plot to avoid memory leaks
+    plt.close(fig)  # Close the plot after testing to free up memory
