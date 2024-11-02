@@ -260,7 +260,7 @@ def train_and_validate(model,
 
 def predict_batch(model, image_batch, device='cuda'):
     """
-    Predicts the categories for a batch of images: useful for probing accuracy and getting metrics. 
+    Predicts the category probabilities for a batch of images
 
     Parameters
     ----------
@@ -268,11 +268,16 @@ def predict_batch(model, image_batch, device='cuda'):
         Trained PyTorch model (e.g., ResNet50).
     image_batch : torch.Tensor
         A batch of images of shape (batch_size, 3, H, W).
+    device : str, optional
+        The device ('cpu' or 'cuda') on which the model and data are placed.
+        Defaults to cuda
+
 
     Returns
     -------
     probabilities: torch.Tensor
         Predicted probabilities for each image in the batch.
+        Shape is (batch_size x num_categories)
     """
     if device not in ['cuda', 'cpu']:
         raise ValueError(f"Invalid device: {device}. Use 'cuda' or 'cpu'.")

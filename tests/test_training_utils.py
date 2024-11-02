@@ -12,52 +12,52 @@ from deepglue import train_and_validate
 from deepglue import accuracy
 
 
-# Constants used to build dummy data/networks in fixtures across these tests
-INPUT_SIZE = 10
+# Constants to build dummy data/networks in fixtures across these tests
+BATCH_SIZE = 10
 NUM_CLASSES = 3
-NUM_SAMPLES = 10
+IMAGE_HEIGHT = 32
+IMAGE_WIDTH = 32
 
-@pytest.fixture
-def simple_linear_model(scope="module"):
+@pytest.fixture(scope="module")
+def simple_cnn_model():
     """
-    Fixture for creating a simple neural network model.
+    Fixture for creating a simple CNN model for image-like data.
     
-    This fixture defines and returns an instance of a basic feedforward neural network
-    with a single linear layer, using INPUT_SIZE inputs and NUM_CLASSES outputs.
-
-    Returns
-    -------
-    SimpleLinearModel
-        An instantiated neural network model with one linear layer.
+    Defines and returns an instance of a simple convolutional neural network
+    with a single convolutional layer followed by a linear output layer.
     """
-    class SimpleLinearModel(nn.Module):
-        def __init__(self):
-            super(SimpleLinearModel, self).__init__()
-            self.fc = nn.Linear(INPUT_SIZE, NUM_CLASSES)
-        
+    class SimpleCNNModel(nn.Module):
+        def __init__(self, num_classes=NUM_CLASSES):
+            super(SimpleCNNModel, self).__init__()
+            self.conv = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1, padding=1)
+            self.fc = nn.Linear(16 * IMAGE_HEIGHT * IMAGE_WIDTH, NUM_CLASSES)
+
         def forward(self, x):
+            x = self.conv(x)
+            x = x.view(x.size(0), -1)  # Flatten
             return self.fc(x)
     
-    return SimpleLinearModel()
+    return SimpleCNNModel()
 
 
-@pytest.fixture
-def dummy_data(scope="module"):
+@pytest.fixture(scope="module")
+def dummy_image_data():
     """
-    Fixture for generating dummy data for testing.
-    
-    Creates NUM_SAMPLES for network with INPUT_SIZE features and NUM_CLASSES outputs. 
+    Fixture for generating a batch of dummy image data.
+
+    Creates random images with shape (BATCH_SIZE, 3, IMAGE_HEIGHT, IMAGE_WIDTH) 
+    and random labels for each image.
 
     Returns
     -------
     tuple
-        A tuple (test_features, test_labels) where:
-        - test_features (torch.Tensor): Randomly generated input features with shape (NUM_SAMPLES, INPUT_SIZE).
-        - test_labels (torch.Tensor): Randomly generated integer labels (0...NUM_CLASSES) corresponding to the classes.
+        A tuple (images, labels) where:
+        - images (torch.Tensor): Randomly generated images.
+        - labels (torch.Tensor): Randomly generated integer labels.
     """
-    test_features = torch.randn(NUM_SAMPLES, INPUT_SIZE)
-    test_labels = torch.randint(0, NUM_CLASSES, (NUM_SAMPLES,))
-    return test_features, test_labels
+    images = torch.randn(BATCH_SIZE, 3, IMAGE_HEIGHT, IMAGE_WIDTH)
+    labels = torch.randint(0, NUM_CLASSES, (BATCH_SIZE,))
+    return images, labels
 
 
 def test_accuracy():
@@ -109,29 +109,28 @@ def test_accuracy():
     assert top2_accuracy == [50.0, 100.0], f"Expected [50.0, 100.0] but got {top2_accuracy}"
 
     
-def test_train_one_epoch(simple_linear_model, dummy_data):
+def test_train_one_epoch(simple_cnn_model, dummy_image_data):
     """
     Test for the train_one_epoch function.
     
     This test verifies that the train_one_epoch function runs without errors, does some basic
-    checking on the training, and returns values of the expected types and shapes. It uses
-    the simple_linear_model and dummy_data fixtures to set up the required components.
+    checking on the training, and returns values of the expected types and shapes. 
+    
+    It uses the simple_cnn_model and dummy_image_data fixtures.
 
     Parameters
     ----------
-    simple_linear_model : SimpleLinearModel
-        An instance of the basic neural network model used for testing.
-    dummy_data : tuple
-        The dummy dataset fixture providing input features and labels.
+    simple_cnn_model : SimpleCNNModel
+        An instance of the basic CNN model used for testing.
+    dummy_image_data : tuple
+        The dummy dataset fixture providing input images and labels.
     """
     # Unpack the dummy data
-    test_features, test_labels = dummy_data
-
-    # Use the instantiated model from the fixture directly
-    model = simple_linear_model
+    images, labels = dummy_image_data
+    model = simple_cnn_model
 
     # Create a DataLoader using the dummy data
-    dataset = TensorDataset(test_features, test_labels)
+    dataset = TensorDataset(images, labels)
     dataloader = DataLoader(dataset, batch_size=2) # small batch size for testing purposes
 
     # Set up the loss function and optimizer
@@ -155,29 +154,29 @@ def test_train_one_epoch(simple_linear_model, dummy_data):
     assert epoch_topk_acc[0] <= epoch_topk_acc[1], "Top-k accuracy values should be non-decreasing."
 
 
-def test_validate_one_epoch(simple_linear_model, dummy_data):
+def test_validate_one_epoch(simple_cnn_model, dummy_image_data):
     """
     Test the validate_one_epoch function.
     
     This test verifies that the validate_one_epoch function runs without errors, processes
     the data correctly, and returns values of the expected types and shapes.
 
+    It uses the simple_cnn_model and dummy_image_data fixtures.
+
     Parameters
     ----------
-    simple_linear_model : SimpleLinearModel
-        An instance of the basic neural network model used for testing.
-    dummy_data : tuple
-        The dummy dataset fixture providing input features and labels.
+    simple_cnn_model : SimpleCNNModel
+        An instance of the basic CNN model used for testing.
+    dummy_image_data : tuple
+        The dummy dataset fixture providing input images and labels.
     """
     # Unpack the dummy data
-    test_features, test_labels = dummy_data
-
-    # Use the instantiated model from the fixture directly
-    model = simple_linear_model
+    images, labels = dummy_image_data
+    model = simple_cnn_model
 
     # Create a DataLoader using the dummy data
-    dataset = TensorDataset(test_features, test_labels)
-    dataloader = DataLoader(dataset, batch_size=2)  # small batch size for testing purposes
+    dataset = TensorDataset(images, labels)
+    dataloader = DataLoader(dataset, batch_size=2) # small batch size for testing purposes
 
     # Set up the loss function
     loss_function = nn.CrossEntropyLoss()
@@ -198,30 +197,29 @@ def test_validate_one_epoch(simple_linear_model, dummy_data):
     assert epoch_topk_acc[0] <= epoch_topk_acc[1], "Top-k accuracy values should be non-decreasing."
 
 
-def test_train_and_validate(simple_linear_model, dummy_data):
+def test_train_and_validate(simple_cnn_model, dummy_image_data):
     """
     Test for the train_and_validate function.
     
     This test verifies that the train_and_validate function runs for two epochs without errors,
     processes the data correctly (training and validation), and returns values of the expected types and shapes.
-    It uses the simple_linear_model and dummy_data fixtures to set up the required components.
+
+    It uses the simple_cnn_model and dummy_image_data fixtures.
 
     Parameters
     ----------
-    simple_linear_model : SimpleLinearModel
-        An instance of the basic neural network model used for testing.
-    dummy_data : tuple
-        The dummy dataset fixture providing input features and labels.
+    simple_cnn_model : SimpleCNNModel
+        An instance of the basic CNN model used for testing.
+    dummy_image_data : tuple
+        The dummy dataset fixture providing input images and labels.
     """
     # Unpack the dummy data
-    test_features, test_labels = dummy_data
+    images, labels = dummy_image_data
+    model = simple_cnn_model
 
-    # Use the instantiated model from the fixture directly
-    model = simple_linear_model
-
-    # Create DataLoaders for training and validation
-    dataset = TensorDataset(test_features, test_labels)
-    dataloader = DataLoader(dataset, batch_size=2)  # Small batch size for testing purposes
+    # Create a DataLoader using the dummy data
+    dataset = TensorDataset(images, labels)
+    dataloader = DataLoader(dataset, batch_size=2) # small batch size for testing purposes
 
     # Set up the loss function and optimizer
     loss_function = nn.CrossEntropyLoss()
@@ -254,7 +252,7 @@ def test_train_and_validate(simple_linear_model, dummy_data):
     assert all(isinstance(val, np.ndarray) for val in history['train_topk_accuracy']), "Train accuracies should be numpy arrays."
     assert all(isinstance(val, np.ndarray) for val in history['val_topk_accuracy']), "Validation accuracies should be numpy arrays."
 
-    # Check that the top-1 accuracy is always less than or equal to top-2 accuracy in each epoch
+    # Check that the top-1 accuracy is always less than or equal to top-2 accuracy in each epoch (in training and validation)
     for epoch_topk_acc in history['train_topk_accuracy']:
         assert epoch_topk_acc[0] <= epoch_topk_acc[1], "Train top-k accuracy values should be non-decreasing."
     for epoch_topk_acc in history['val_topk_accuracy']:
