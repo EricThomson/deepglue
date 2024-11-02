@@ -33,7 +33,6 @@ jobs:
 
       - name: Lint with ruff
         run: |
-          pip install ruff
           ruff check --output-format=github .
         continue-on-error: true  # Allow CI to continue even if there are lint errors
 
