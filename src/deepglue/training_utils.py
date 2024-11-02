@@ -275,7 +275,7 @@ def predict_batch(model, image_batch, device='cuda'):
 
     Returns
     -------
-    probabilities: torch.Tensor
+    probability_matrix: torch.Tensor
         Predicted probabilities for each image in the batch.
         Shape is (batch_size x num_categories)
     """
@@ -288,8 +288,8 @@ def predict_batch(model, image_batch, device='cuda'):
     model.eval()
     with torch.no_grad():
         logits = model(image_batch)
-        probabilities = softmax(logits, dim=1)
-    return probabilities
+        probability_matrix = softmax(logits, dim=1)
+    return probability_matrix
 
 
 def accuracy(output, target, topk=(1,)):

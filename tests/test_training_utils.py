@@ -6,10 +6,11 @@ from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import pytest
 
-from deepglue import train_one_epoch  
-from deepglue import validate_one_epoch
-from deepglue import train_and_validate
-from deepglue import accuracy
+from deepglue.training_utils import train_one_epoch  
+from deepglue.training_utils import validate_one_epoch
+from deepglue.training_utils import train_and_validate
+from deepglue.training_utils import accuracy
+from deepglue.training_utils import predict_batch
 
 
 # Constants to build dummy data/networks in fixtures across these tests
@@ -259,3 +260,33 @@ def test_train_and_validate(simple_cnn_model, dummy_image_data):
         assert epoch_topk_acc[0] <= epoch_topk_acc[1], "Validation top-k accuracy values should be non-decreasing."
 
 
+def test_predict_batch(simple_cnn_model, dummy_image_data):
+    """
+    Test the predict_batch function.
+
+    This test verifies that the predict_batch function runs without errors, returns a tensor of 
+    predicted probabilities, and outputs a tensor with the expected shape and valid probability values
+
+    Parameters
+    ----------
+    simple_cnn_model : nn.Module
+        A simple CNN model created using the fixture for testing.
+    dummy_image_data : tuple
+        The dummy dataset fixture providing input images and labels.
+    """
+    # Unpack the dummy data
+    images, _ = dummy_image_data  # Only need images for prediction
+    model = simple_cnn_model
+    batch_size, num_classes = images.shape[0], NUM_CLASSES
+
+    # Run the predict_batch function
+    probability_matrix = predict_batch(model, images, device='cpu')
+
+    # Assertions 
+    assert isinstance(probability_matrix, torch.Tensor), "Output should be a torch.Tensor."
+    assert probability_matrix.shape == (batch_size, num_classes), \
+        f"Expected shape {(batch_size, num_classes)}, but got {probability_matrix.shape}."
+    assert torch.all(probability_matrix >= 0) and torch.all(probability_matrix <= 1), \
+        "All probabilities should be in the range [0, 1]."
+    assert torch.allclose(probability_matrix.sum(dim=1), torch.tensor(1.0)), \
+        "Each row of probability_matrix should sum to 1."
