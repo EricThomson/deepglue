@@ -22,4 +22,4 @@ Then all functions will be available. For instance to train a model for one epoc
 
     dg.train_one_epoch(model, data_loader, loss_function, optimizer)
 
-To inspect the different functions that are available, and their usage, see the [API page](api.md). This is all in early stages -- in 2025 there will be simple tutorials to show how to use Deep Glue to simplify machine vision tasks.  
+To inspect the different functions that are available, and their usage, see the [API page](api.md). This is all in early stages -- in Spring 2025 we will provide some tutorials showing how to use Deep Glue to simplify machine vision tasks.  
