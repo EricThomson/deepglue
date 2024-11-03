@@ -8,7 +8,7 @@ In the virtual environment in which you have torch installed:
 
     pip install deepglue
 
-Or clone repo and do dev install with:
+Or clone repo and do editable install with:
 
     pip install -e . 
 
@@ -22,8 +22,4 @@ Then all functions will be available. For instance to train a model for one epoc
 
     dg.train_one_epoch(model, data_loader, loss_function, optimizer)
 
-This is all in early stages -- eventually there will be simple tutorials to show how to use Deep Glue for classification tasks, etc.  
-
-## More details
-
-To inspect the different functions and their usage in more detail, see the [API page](api.md).
+To inspect the different functions that are available, and their usage, see the [API page](api.md). This is all in early stages -- in 2025 there will be simple tutorials to show how to use Deep Glue to simplify machine vision tasks.  

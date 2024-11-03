@@ -11,7 +11,6 @@ Note Deep Glue is pre-alpha, a rapidly changing work in progress.
 
 ::: deepglue.plot_utils
 
-
 ## File Utilities
 
 ::: deepglue.file_utils
