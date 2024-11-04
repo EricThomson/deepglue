@@ -8,6 +8,13 @@ Utilities for pytorch-based deep learning projects. Keeping the useful stuff tog
 - `import deepglue as dg`
 - Read the docs at https://deepglue.readthedocs.io/en/latest/ 
 
-Deep Glue is a rapidly-changing work in progress (pre-alpha).
+Deep Glue is a rapidly-changing work in progress (pre-alpha). 
+
+ 
+ ### Upcoming batches
+- Improved metrics for trained models 
+- Visualization of clustering of classes by layer using umap.
+- Visualize features by layer.
+- Add checkpoints during training 
 
 
