@@ -443,13 +443,13 @@ def plot_prediction_grid(images, probability_matrix, true_categories, category_m
 
     Note
     ----
-    Inspired by similar visualization created by the Nuevo Foundation:
+    Inspired by visualization created by the Nuevo Foundation:
     https://workshops.nuevofoundation.org/python-tensorflow/plotting_model/
     """
     num_predictions = len(true_categories)
 
     if images.shape[0] != num_predictions or probability_matrix.shape[0] != num_predictions:
-        raise ValueError("The length of `true_categories` must match the first dimension of `images` and `probability_matrix`.")
+        raise ValueError("samples must all be same: images.shape[0], probability_matrix.shape[0] and len(true_categories)")
     
     predictions_per_row = 2
     subplots_per_prediction = 2  # Image + bar plot 
