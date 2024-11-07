@@ -298,16 +298,19 @@ def predict_batch(model, image_batch, device='cuda'):
     return probability_matrix
 
 
-def accuracy(output, target, topk=(1,)):
+def accuracy(outputs, targets, topk=(1,)):
     """
-    Computes top-k classifier accuracy for the specified values of k.
+    Computes the top-k accuracy for classifier predictions.
+
+    Calculates how often the true label is within the top-k predictions,
+    for each value of k specified in `topk`. 
 
     Parameters
     ----------
-    output : torch.Tensor
-        The output predictions from the model, typically of shape (num_samples, num_classes).
-        Rows be logits or probabilities
-    target : torch.Tensor
+    outputs : torch.Tensor
+        Model predictions of shape (num_samples, num_classes), where each row contains the 
+        logits or probabilities for each class. 
+    targets : torch.Tensor
         The ground truth labels, of shape (num_samples,) or (num_samples, num_classes) if one-hot encoded.
     topk : tuple of int, optional
         A tuple of integers specifying the values of k for which to compute the prediction accuracy.
@@ -322,23 +325,19 @@ def accuracy(output, target, topk=(1,)):
     -----
     - Adapted from torchvision's accuracy() function (release 0.19.1), which is licensed under the BSD-3 License.
     - Original implementation in pytorch/vision/references/classification/utils.py 
-
-    TODO
-    ----
-    Consider using scikit-learn's top_k_accuracy_score instead
     """
     # logging.debug(f"Calculating topk accuracy with topk input {topk}")
 
     with torch.inference_mode():
         maxk = max(topk)
-        batch_size = target.size(0)
+        batch_size = targets.size(0)
         # if targets are one-hot encoded
-        if target.ndim == 2:
-            target = target.max(dim=1)[1]
+        if targets.ndim == 2:
+            targets = targets.max(dim=1)[1]
 
-        _, pred = output.topk(maxk, 1, True, True) # get the top k predictions
+        _, pred = outputs.topk(maxk, 1, True, True) # get the top k predictions
         pred = pred.t() # convert to maxk x batch_size which is what comparitor wants
-        correct = pred.eq(target.unsqueeze(0))  # k x batches bool gives position of correct prediction (if any) for batch col
+        correct = pred.eq(targets.unsqueeze(0))  # k x batches bool gives position of correct prediction (if any) for batch col
 
         topk_accuracy = []
         for k in topk:
