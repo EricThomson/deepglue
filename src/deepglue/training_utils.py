@@ -278,6 +278,12 @@ def predict_batch(model, image_batch, device='cuda'):
     probability_matrix: torch.Tensor
         Predicted probabilities for each image in the batch.
         Shape is (batch_size x num_categories)
+
+    TODO
+    ----
+    - Change name to predict_sample because this isn't a batch in the conventional sense coming
+    from a data loader, keep the language consistent across the package. 
+    - Have it return predicted 'labels'
     """
     if device not in ['cuda', 'cpu']:
         raise ValueError(f"Invalid device: {device}. Use 'cuda' or 'cpu'.")
@@ -294,14 +300,15 @@ def predict_batch(model, image_batch, device='cuda'):
 
 def accuracy(output, target, topk=(1,)):
     """
-    Computes the accuracy over the k top predictions for the specified values of k.
+    Computes top-k classifier accuracy for the specified values of k.
 
     Parameters
     ----------
     output : torch.Tensor
-        The output predictions from the model, typically of shape (batch_size, num_classes).
+        The output predictions from the model, typically of shape (num_samples, num_classes).
+        Rows be logits or probabilities
     target : torch.Tensor
-        The ground truth labels, of shape (batch_size,) or (batch_size, num_classes) if one-hot encoded.
+        The ground truth labels, of shape (num_samples,) or (num_samples, num_classes) if one-hot encoded.
     topk : tuple of int, optional
         A tuple of integers specifying the values of k for which to compute the prediction accuracy.
         Defaults to (1,).
@@ -313,10 +320,14 @@ def accuracy(output, target, topk=(1,)):
 
     Notes
     -----
-    - Adapted from torchvision's accuracy function (release 0.19.1), which is licensed under the BSD-3 License.
+    - Adapted from torchvision's accuracy() function (release 0.19.1), which is licensed under the BSD-3 License.
     - Original implementation in pytorch/vision/references/classification/utils.py 
+
+    TODO
+    ----
+    Consider using scikit-learn's top_k_accuracy_score instead
     """
-    # logging.debug(f"Calculating topk accuracy with topk value {topk}")
+    # logging.debug(f"Calculating topk accuracy with topk input {topk}")
 
     with torch.inference_mode():
         maxk = max(topk)

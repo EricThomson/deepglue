@@ -109,7 +109,7 @@ def sample_random_images(data_path, category_map, num_images=1, split_type='trai
         category_path = split_path / category
         if not category_path.is_dir():
             raise FileNotFoundError(f"Category directory name {category} does not exist in {split_path}.")
-        category_dirs = [category_path]
+        category_dirs = [category_path]    # even though single category, expects list
 
     # Collect all image paths and their corresponding categories
     image_paths = []
