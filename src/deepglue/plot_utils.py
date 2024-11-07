@@ -317,8 +317,10 @@ def plot_prediction_image(tensor, probabilities, category_map,
         The image axis object
     """
     # Handle any stray tensor dimensions
-    probabilities = probabilities.squeeze(0)
-    tensor = tensor.squeeze(0)
+    if probabilities.dim() == 2 and probabilities.size(0) == 1:
+        probabilities = probabilities.squeeze(0)
+    if tensor.dim() == 2 and tensor.size(0) == 1:
+        tensor = tensor.squeeze(0)
 
     # Get top predictions
     top_prob, top_ind = torch.topk(probabilities, 1)
@@ -374,7 +376,8 @@ def plot_prediction_probs(probabilities, category_map, true_label=None, top_n=5,
 
     """
     # Handle any stray tensor dimensions
-    probabilities = probabilities.squeeze(0)
+    if probabilities.dim() == 2 and probabilities.shape[0] == 1:
+        probabilities = probabilities.squeeze(0)
 
     # Ensure top_n doesn't exceed the number of available categories
     if top_n > len(category_map):
