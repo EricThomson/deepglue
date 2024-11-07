@@ -6,6 +6,7 @@ Functions that are useful for training deep networks, including validation and t
 import numpy as np
 import torch
 from torch.nn.functional import softmax
+from tqdm import tqdm
 
 import logging
 logging.getLogger(__name__)
@@ -256,6 +257,59 @@ def train_and_validate(model,
                'val_topk_accuracy': np.array(validation_topk_acc) }               
      
     return model, history  # Return both the trained model and the history
+
+
+def predict_all(model, data_loader, device='cuda'):
+    """
+    Make predictions for all batches of data in data loader.
+
+    Use the model to generate predictions for all all batches from the provided data loader. 
+    It returns the predicted class labels, true labels, class probabilities for each sample. 
+
+    Parameters
+    ----------
+    model : torch.nn.Module
+        Trained PyTorch model (e.g., ResNet50).
+    data_loader : torch.utils.data.DataLoader
+        An iterable that provides batches of input data and their corresponding labels.
+    device : str, optional
+        The device ('cpu' or 'cuda') on which the model and data are placed.
+        Defaults to 'cuda'.
+
+    Returns
+    -------
+    all_preds : torch.Tensor
+        An array of predicted labels for each sample in the dataset, with shape (num_samples,)
+    all_labels : torch.Tensor
+        An array of true labels for each sample in the dataset, with shape (num_samples,)
+    probability_matrix: torch.Tensor
+        A 2D array of shape (num_samples, num_categories) containing the softmax-normalized
+        probabilities for each category: each row represents the predicted probability 
+        distribution for a single sample.
+    """
+    all_preds = []
+    all_labels = []
+    all_probs = []
+    num_batches = len(data_loader)
+    model.to(device)
+    
+    model.eval()
+    with torch.no_grad():
+        for images, labels in tqdm(data_loader, total=num_batches, desc="Predicting Batches"):
+            images, labels = images.to(device), labels.to(device)
+            logits = model(images) # logits
+            _, preds = torch.max(logits, 1)
+            all_preds.append(preds.cpu())
+            all_labels.append(labels.cpu())
+
+            # convert logits to probs in batch 
+            probabilities = softmax(logits, dim=1)  
+            all_probs.append(probabilities.cpu())
+            
+    all_preds = torch.cat(all_preds, dim=0)
+    all_labels = torch.cat(all_labels, dim=0)
+    probability_matrix = torch.cat(all_probs, dim=0)
+    return all_preds, all_labels, probability_matrix
 
 
 def predict_batch(model, image_batch, device='cuda'):

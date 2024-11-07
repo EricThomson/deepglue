@@ -7,6 +7,7 @@ __version__ = "0.1.6b"
 from .training_utils import train_one_epoch
 from .training_utils import validate_one_epoch
 from .training_utils import train_and_validate
+from .training_utils import predict_all 
 from .training_utils import predict_batch
 from .training_utils import accuracy
 
@@ -30,6 +31,7 @@ from .file_utils import count_by_split
 __all__ = ["train_one_epoch",
            "validate_one_epoch",
            "train_and_validate",
+           "predict_all",
            "predict_batch",
            "accuracy",
            

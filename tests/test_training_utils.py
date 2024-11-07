@@ -10,11 +10,13 @@ from deepglue.training_utils import train_one_epoch
 from deepglue.training_utils import validate_one_epoch
 from deepglue.training_utils import train_and_validate
 from deepglue.training_utils import accuracy
+from deepglue.training_utils import predict_all
 from deepglue.training_utils import predict_batch
 
 
 # Constants to build dummy data/networks in fixtures across these tests
-BATCH_SIZE = 10
+NUM_SAMPLES = 10  
+BATCH_SIZE = 2
 NUM_CLASSES = 3
 IMAGE_HEIGHT = 32
 IMAGE_WIDTH = 32
@@ -46,18 +48,16 @@ def dummy_image_data():
     """
     Fixture for generating a batch of dummy image data.
 
-    Creates random images with shape (BATCH_SIZE, 3, IMAGE_HEIGHT, IMAGE_WIDTH) 
+    Creates random image data with shape (10, 3, IMAGE_HEIGHT, IMAGE_WIDTH) 
     and random labels for each image.
 
     Returns
     -------
-    tuple
-        A tuple (images, labels) where:
-        - images (torch.Tensor): Randomly generated images.
-        - labels (torch.Tensor): Randomly generated integer labels.
+    images (torch.Tensor): Randomly generated images
+    labels (torch.Tensor): Randomly generated integer labels (len 10)
     """
-    images = torch.randn(BATCH_SIZE, 3, IMAGE_HEIGHT, IMAGE_WIDTH)
-    labels = torch.randint(0, NUM_CLASSES, (BATCH_SIZE,))
+    images = torch.randn(NUM_SAMPLES, 3, IMAGE_HEIGHT, IMAGE_WIDTH)
+    labels = torch.randint(0, NUM_CLASSES, (NUM_SAMPLES,))
     return images, labels
 
 
@@ -132,7 +132,7 @@ def test_train_one_epoch(simple_cnn_model, dummy_image_data):
 
     # Create a DataLoader using the dummy data
     dataset = TensorDataset(images, labels)
-    dataloader = DataLoader(dataset, batch_size=2) # small batch size for testing purposes
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE) # small batch size for testing purposes
 
     # Set up the loss function and optimizer
     loss_function = nn.CrossEntropyLoss()
@@ -177,7 +177,7 @@ def test_validate_one_epoch(simple_cnn_model, dummy_image_data):
 
     # Create a DataLoader using the dummy data
     dataset = TensorDataset(images, labels)
-    dataloader = DataLoader(dataset, batch_size=2) # small batch size for testing purposes
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE) # small batch size for testing purposes
 
     # Set up the loss function
     loss_function = nn.CrossEntropyLoss()
@@ -220,7 +220,7 @@ def test_train_and_validate(simple_cnn_model, dummy_image_data):
 
     # Create a DataLoader using the dummy data
     dataset = TensorDataset(images, labels)
-    dataloader = DataLoader(dataset, batch_size=2) # small batch size for testing purposes
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE) # small batch size for testing purposes
 
     # Set up the loss function and optimizer
     loss_function = nn.CrossEntropyLoss()
@@ -234,7 +234,7 @@ def test_train_and_validate(simple_cnn_model, dummy_image_data):
                                         optimizer=optimizer, 
                                         device='cpu',
                                         topk=(1, 2),
-                                        epochs=2)  # Running only 2 epochs for testing speed
+                                        epochs=2)  # Run only 2 epochs for testing speed
 
     # Assertions for the model and history output
     assert isinstance(history, dict), "History should be a dictionary."
@@ -259,6 +259,42 @@ def test_train_and_validate(simple_cnn_model, dummy_image_data):
     for epoch_topk_acc in history['val_topk_accuracy']:
         assert epoch_topk_acc[0] <= epoch_topk_acc[1], "Validation top-k accuracy values should be non-decreasing."
 
+
+def test_predict_all(simple_cnn_model, dummy_image_data):
+    """
+    Test the predict_all function to ensure it returns the expected output shapes and types.
+    
+    This test checks that:
+    - all_preds and all_labels have the same number of samples as provided by the data loader.
+    - probability_matrix has the shape (num_samples, num_classes) and contains valid probabilities.
+    """
+
+    # Unpack the dummy data
+    images, labels = dummy_image_data
+    model = simple_cnn_model
+
+    # Create a DataLoader using the dummy data
+    dataset = TensorDataset(images, labels)
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE) # small batch size for testing purposes
+
+    # Act
+    all_preds, all_labels, probability_matrix = predict_all(model, dataloader, device='cpu')
+
+    # Assert
+    assert isinstance(all_preds, torch.Tensor), "all_preds should be a torch.Tensor"
+    assert isinstance(all_labels, torch.Tensor), "all_labels should be a torch.Tensor"
+    assert isinstance(probability_matrix, torch.Tensor), "probability_matrix should be a torch.Tensor"
+    
+    assert all_preds.shape == (NUM_SAMPLES,), f"Expected shape {(NUM_SAMPLES,)} for all_preds, got {all_preds.shape}"
+    assert all_labels.shape == (NUM_SAMPLES,), f"Expected shape {(NUM_SAMPLES,)} for all_labels, got {all_labels.shape}"
+    assert probability_matrix.shape == (NUM_SAMPLES, NUM_CLASSES), \
+        f"Expected shape {(NUM_SAMPLES, NUM_CLASSES)} for probability_matrix, got {probability_matrix.shape}"
+    
+    # Check if probabilities are valid (between 0 and 1)
+    assert torch.all((probability_matrix >= 0) & (probability_matrix <= 1)), "Probabilities should be between 0 and 1"
+    assert torch.allclose(probability_matrix.sum(dim=1), torch.ones_like(probability_matrix.sum(dim=1))), \
+        "Each row in probability_matrix should sum to 1"
+    
 
 def test_predict_batch(simple_cnn_model, dummy_image_data):
     """

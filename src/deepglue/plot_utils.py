@@ -316,11 +316,11 @@ def plot_prediction_image(tensor, probabilities, category_map,
     axes : matplotlib.axes.Axes
         The image axis object
     """
-    # Handle any stray tensor dimensions
-    if probabilities.dim() == 2 and probabilities.size(0) == 1:
-        probabilities = probabilities.squeeze(0)
-    if tensor.dim() == 2 and tensor.size(0) == 1:
+    # Handle any stray tensor dimensions in case singleton batch sent in
+    if tensor.dim() == 2 and tensor.shape[0] == 1:
         tensor = tensor.squeeze(0)
+    if probabilities.dim() == 2 and probabilities.shape[0] == 1:
+        probabilities = probabilities.squeeze(0)
 
     # Get top predictions
     top_prob, top_ind = torch.topk(probabilities, 1)
@@ -375,7 +375,7 @@ def plot_prediction_probs(probabilities, category_map, true_label=None, top_n=5,
         The bar plot axis object
 
     """
-    # Handle any stray tensor dimensions
+    # Handle any stray tensor dimensions from singleton batches
     if probabilities.dim() == 2 and probabilities.shape[0] == 1:
         probabilities = probabilities.squeeze(0)
 
