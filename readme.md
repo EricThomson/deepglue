@@ -12,7 +12,6 @@ Deep Glue is a rapidly-changing work in progress (pre-alpha).
 
  
  ### Upcoming batches
-- Improved metrics for trained models 
 - Visualization of clustering of classes by layer using umap.
 - Visualize features by layer.
 - Add checkpoints during training 
