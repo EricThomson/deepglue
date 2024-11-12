@@ -11,10 +11,10 @@ Utilities for pytorch-based deep learning projects. Keeping the useful stuff tog
 Deep Glue is a rapidly-changing work in progress (pre-alpha). 
 
  
- ### Plans for deepglue
-- Visualization of clustering of classes by layer using umap.
-- Visualize features by layer.
-- Add checkpoints during training 
-- Simple tutorials
+ ### Short-term plans
+- [ ] Interactive clustering visualization    
+- [ ] Feature space visualization.    
+- [ ] Training checkpoints     
+- [ ] Add simple tutorials    
 
 
