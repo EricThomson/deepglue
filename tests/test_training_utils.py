@@ -79,24 +79,7 @@ def test_accuracy():
     top2_accuracy = accuracy(outputs, targets, topk=(1, 2))
     assert top2_accuracy == [100.0, 100.0], f"Expected [100.0, 100.0] but got {top2_accuracy}"
 
-    # Example 2: Another controlled case to check top-k behavior
-    output = torch.tensor([
-        [0.2, 0.7, 0.1],  # Image 1: Class 1 is correct, but Class 2 is in top-2
-        [0.9, 0.05, 0.05],# Image 2: Class 0 correct, Class 1 also in top-2
-        [0.1, 0.2, 0.7],  # Image 3: Class 2 correct
-        [0.3, 0.6, 0.1]   # Image 4: Class 1 correct
-    ])
-    target = torch.tensor([1, 0, 2, 1])
-
-    # Test for top-1 accuracy (should be 100%)
-    top1_accuracy = accuracy(outputs, targets, topk=(1,))
-    assert top1_accuracy == [100.0], f"Expected [100.0] but got {top1_accuracy}"
-
-    # Test for top-1 and top-2 accuracy (should be 100% and 100%)
-    top2_accuracy = accuracy(outputs, targets, topk=(1, 2))
-    assert top2_accuracy == [100.0, 100.0], f"Expected [100.0, 100.0] but got {top2_accuracy}"
-
-    # Example 3: A case with some incorrect predictions
+    # Example 2: A case with some incorrect predictions
     outputs2 = torch.tensor([
         [0.6, 0.2, 0.2],  # Image 1: Incorrect (should be 1)
         [0.1, 0.8, 0.1],  # Image 2: Correct (1)

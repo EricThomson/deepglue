@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.26.1"]
 build-backend = "hatchling.build"
 
 [project]
@@ -29,8 +29,6 @@ dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://github.com/EricThomson/deepglue"
-
-
 
 # Optional dependencies for documentation [docs] and testing/linting [dev]:
 [project.optional-dependencies]
