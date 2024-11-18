@@ -148,7 +148,7 @@ def plot_random_category_sample(data_path, category, split_type='train', num_to_
     return fig, axes
 
 
-def plot_batch(batch_images, batch_targets, category_map, max_to_plot=32, cmap='gray'):
+def plot_batch(batch_images, batch_targets, category_map, max_to_plot=32):
     """
     Plots a batch of images, and their corresponding target categories, from a DataLoader.
 
@@ -190,7 +190,7 @@ def plot_batch(batch_images, batch_targets, category_map, max_to_plot=32, cmap='
         image = batch_images[index]
         image = convert_for_plotting(image)
         category = str(batch_targets[index].item())
-        ax.imshow(image, cmap=cmap)
+        ax.imshow(image)
         ax.set_title(category_map[category])
         ax.axis('off')
 
@@ -249,7 +249,7 @@ def plot_transformed(original_image, transform, cmap=None, num_to_plot=4):
 
 def convert_for_plotting(tensor):
     """
-    Convert float torch tensor image to a uint8 tensor to format suitable for standard plotting libraries.
+    Convert torch tensor image (typically float CxHxW) to a format suitable for standard plotting libraries (uint8 HxWxC).
 
     Parameters
     ----------
