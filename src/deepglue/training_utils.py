@@ -4,7 +4,10 @@ deepglue training_utils.py
 Functions that are useful for training deep networks, including validation and testing and metrics. 
 """
 import numpy as np
+from pathlib import Path
 import torch
+from torchvision import datasets
+from torch.utils.data import DataLoader
 from torch.nn.functional import softmax
 from tqdm import tqdm
 
@@ -400,3 +403,64 @@ def accuracy(outputs, targets, topk=(1,)):
             topk_accuracy.append(100.0*proportion_correct)
 
         return topk_accuracy
+    
+def _prepare_ordered_data(data_path, transform, num_workers=0, batch_size=4, split_type='valid'):
+    """
+    Prepare an ordered dataset to be used by extract_features().
+
+    Generate a list of image paths and a DataLoader for a given dataset split.
+    The image path and the DataLoader indices are guaranteed to match because both `shuffle`
+    and `drop_last` are set to `False`, ensuring the data will be accessed in order without
+    dropping any samples.
+
+
+    Parameters
+    ----------
+    data_path : str or Path
+        Path to the root directory containing the split folders ('train', 'valid', 'test')
+    transform : torchvision transform (callable)
+        The transformations to apply to each image.
+    num_workers : int, optional
+        Number of workers for parallel data loading. Higher values improve performance
+        during feature extraction but may lead to multiprocessing issues on some platforms.
+        Defaults to 0 (no multiprocessing).
+    batch_size : int, optional
+        Batch size for the DataLoader. Larger values improve feature extraction speed
+        but requires more memory. Defaults to 4.
+    split_type : str, optional
+        The split folder to sample from ('train', 'valid', 'test'). Defaults to 'train'.
+        
+    Returns
+    -------
+    image_paths : list of str
+        A list of file paths to the images in the dataset split, in the same order as
+        the DataLoader batches.
+    ordered_loader : torch.utils.data.DataLoader
+        A DataLoader for the ordered dataset split, configured to not shuffle data and
+        to include all samples.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the specified data paths do not exist.
+        
+    Notes
+    -----
+    - Designed for feature extraction workflows where maintaining the correspondence between 
+      image file paths and DataLoader batches is critical.
+    - For large datasets, consider increasing `num_workers` and `batch_size` for better performance.
+    """
+    data_path = Path(data_path) 
+    split_path =data_path / split_type
+    if not split_path.exists():
+        raise FileNotFoundError(f"{split_path} does not exist.")
+        
+    ordered_dataset = datasets.ImageFolder(root=split_path, transform=transform)
+    image_paths = [path for path,_ in ordered_dataset.samples]
+    ordered_loader = DataLoader(ordered_dataset,
+                                batch_size=batch_size,
+                                num_workers=num_workers,
+                                shuffle=False,  # do not change
+                                drop_last=False);  # do not change
+    
+    return image_paths, ordered_loader    

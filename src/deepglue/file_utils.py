@@ -138,19 +138,19 @@ def sample_random_images(data_path, category_map, num_images=1, split_type='trai
 
 def load_images_for_model(image_paths, transform):
     """
-    Loads a list of image paths, returns a tensor suitable for model input.
+    Given a list of image paths, returns a tensor suitable for model input.
 
     Parameters
     ----------
     image_paths : list of str or Paths
         List of image file paths.
-    transform : torchvision.transforms.Compose
+    transform : torchvision transform (callable)
         The transformations to apply to each image.
 
     Returns
     -------
     torch.Tensor
-        A batch of images as a tensor of shape (batch_size, 3, H, W).
+        A batch of images as a tensor of shape (len(image_paths), 3, H, W).
     """
     images = [transform(Image.open(image_path).convert("RGB")) for image_path in image_paths]
     return torch.stack(images)

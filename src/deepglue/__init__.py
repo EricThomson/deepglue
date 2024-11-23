@@ -10,6 +10,7 @@ from .training_utils import train_and_validate
 from .training_utils import predict_all 
 from .training_utils import predict_batch
 from .training_utils import accuracy
+from .training_utils import _prepare_ordered_data
 
 from .plot_utils import plot_random_sample
 from .plot_utils import plot_random_category_sample
@@ -34,6 +35,7 @@ __all__ = ["train_one_epoch",
            "predict_all",
            "predict_batch",
            "accuracy",
+           "_prepare_ordered_data",
            
            "plot_random_sample",
            "plot_random_category_sample",
