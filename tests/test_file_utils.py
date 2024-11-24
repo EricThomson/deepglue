@@ -9,57 +9,6 @@ from deepglue.file_utils import count_by_category
 from deepglue.file_utils import count_by_split
 from deepglue.file_utils import sample_random_images
 
-
-@pytest.fixture
-def setup_test_split_dirs(tmp_path):
-    """
-    Sets up temporary test directories for train, valid, and test with sample images
-    in different categories.
-
-    Standard structure:
-        tmp_path/
-            train/
-                class0/   [3 images]
-                class1/   [2 images]
-            valid/
-                class0/   [1 image]
-                class1/   [4 images]
-            test/
-                class0/   [0 images]
-                class1/   [3 images]
-
-    Parameters
-    ----------
-    tmp_path : Path
-        Pytest fixture that provides a temporary directory unique to each test.
-
-    Returns
-    -------
-    tmp_path: Path
-        The path to the temporary data directory.
-    """
-    # Define the categories and the number of images per split
-    split_types = ['train', 'valid', 'test']
-    category_image_counts = {
-        'class0': [3, 1, 0],  # Train: 3, Valid: 1, Test: 0
-        'class1': [2, 4, 3]   # Train: 2, Valid: 4, Test: 3
-    }
-
-    # Iterate through categories first, then through the splits
-    for category, image_counts in category_image_counts.items():
-        for split, count in zip(split_types, image_counts):
-            # Create the split and category directories
-            split_dir = tmp_path / split
-            category_dir = split_dir / category
-            category_dir.mkdir(parents=True, exist_ok=True)
-
-            # Create the specified number of dummy image files
-            for i in range(count):
-                (category_dir / f'image_{i}.png').touch()
-
-    return tmp_path
-
-
 def test_create_subdirs(tmp_path):
     """"
     This uses pytest's built-in temporary fixture tmp_path 

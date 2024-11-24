@@ -13,53 +13,7 @@ from deepglue.training_utils import accuracy
 from deepglue.training_utils import predict_all
 from deepglue.training_utils import predict_batch
 
-
-# Constants to build dummy data/networks in fixtures across these tests
-NUM_SAMPLES = 10  
-BATCH_SIZE = 2
-NUM_CLASSES = 3
-IMAGE_HEIGHT = 32
-IMAGE_WIDTH = 32
-
-@pytest.fixture(scope="module")
-def simple_cnn_model():
-    """
-    Fixture for creating a simple CNN model for image-like data.
-    
-    Defines and returns an instance of a simple convolutional neural network
-    with a single convolutional layer followed by a linear output layer.
-    """
-    class SimpleCNNModel(nn.Module):
-        def __init__(self, num_classes=NUM_CLASSES):
-            super(SimpleCNNModel, self).__init__()
-            self.conv = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1, padding=1)
-            self.fc = nn.Linear(16 * IMAGE_HEIGHT * IMAGE_WIDTH, NUM_CLASSES)
-
-        def forward(self, x):
-            x = self.conv(x)
-            x = x.view(x.size(0), -1)  # Flatten
-            return self.fc(x)
-    
-    return SimpleCNNModel()
-
-
-@pytest.fixture(scope="module")
-def dummy_image_data():
-    """
-    Fixture for generating a batch of dummy image data.
-
-    Creates random image data with shape (10, 3, IMAGE_HEIGHT, IMAGE_WIDTH) 
-    and random labels for each image.
-
-    Returns
-    -------
-    images (torch.Tensor): Randomly generated images
-    labels (torch.Tensor): Randomly generated integer labels (len 10)
-    """
-    images = torch.randn(NUM_SAMPLES, 3, IMAGE_HEIGHT, IMAGE_WIDTH)
-    labels = torch.randint(0, NUM_CLASSES, (NUM_SAMPLES,))
-    return images, labels
-
+from conftest import BATCH_SIZE, NUM_CLASSES, NUM_SAMPLES
 
 def test_accuracy():
     # Example 1: Simple case with batch size 4 and 3 classes
