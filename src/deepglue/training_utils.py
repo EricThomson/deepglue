@@ -403,16 +403,91 @@ def accuracy(outputs, targets, topk=(1,)):
             topk_accuracy.append(100.0*proportion_correct)
 
         return topk_accuracy
-    
-def _prepare_ordered_data(data_path, transform, num_workers=0, batch_size=4, split_type='valid'):
+
+
+def extract_features(dataloader, feature_extractor, layer, device='cuda'):
     """
-    Prepare an ordered dataset to be used by extract_features().
+    Extract features from a network layer using a data loader, feature extractor, and specified layer.
+
+    Parameters
+    ----------
+    dataloader : torch.utils.data.DataLoader
+        DataLoader for the dataset (often configured without shuffling or dropping samples)
+    feature_extractor : torch.nn.Module
+        The feature extractor model, note this is typically created with
+        torchvision's `feature_extraction.create_feature_extractor()` built-in. 
+    layer : str
+        The name of the layer to extract features from. Must be present in the output of the feature extractor.
+    device : str, optional
+        The device to use for feature extraction ('cuda' or 'cpu'). Defaults to 'cuda'.
+
+    Returns
+    -------
+    features : numpy.ndarray
+        Extracted features of shape (num_images, num_flattened_features), where `num_flattened_features`
+        depends on the layer output dimensions.
+    labels : numpy.ndarray
+        Corresponding ground-truth labels for each image, of shape (num_images,).
+
+    Raises
+    ------
+    KeyError
+        If the specified layer is not found in the output of the feature extractor.
+
+    Notes
+    -----
+    - For large datasets, ensure sufficient memory is available for concatenating feature arrays: they can 
+      grow extremely large for large network models. 
+
+    TODO
+    ----
+    - Add optimizations (quantization, out-of-core computation with dask and xarray, etc) for very large arrays.
+    """
+
+    logging.info(f"Feature extraction starting for layer '{layer}'. Setup can take a minute.")
+
+    feature_extractor.to(device)
+    
+    # Initialize vars
+    features = []  # To store flattened features for the specified layer
+    labels = [] 
+
+    # extract features batch by batch
+    for batch_num, (batch_images, batch_labels) in tqdm(enumerate(dataloader),
+                                                        desc=f"Extracting features",
+                                                        total=len(dataloader)):
+        batch_images = batch_images.to(device)
+        with torch.no_grad():
+            outputs = feature_extractor(batch_images)
+            
+            # Get the output for the specified layer
+            if layer not in outputs:
+                raise KeyError(f"Layer '{layer}' not found in the feature extractor outputs!")
+    
+            # Flatten the features for each image in the batch
+            output = outputs[layer]
+            flattened_features = output.reshape(output.size(0), -1)
+            features.append(flattened_features.cpu().numpy())
+    
+            labels.extend(batch_labels.numpy())
+    
+    # Concatenate features across all batches
+    features = np.concatenate(features, axis=0)  # Shape: [num_images, num_flattened_features]
+    labels = np.array(labels)  # Shape: [num_images]
+    
+    logging.info(f"Feature extraction complete for layer '{layer}'.")
+
+    return features, labels
+
+
+def prepare_ordered_data(data_path, transform, num_workers=0, batch_size=4, split_type='valid'):
+    """
+    Prepare ordered data loader and correponding image path list for feature extraction pipeline.
 
     Generate a list of image paths and a DataLoader for a given dataset split.
     The image path and the DataLoader indices are guaranteed to match because both `shuffle`
     and `drop_last` are set to `False`, ensuring the data will be accessed in order without
     dropping any samples.
-
 
     Parameters
     ----------
@@ -455,9 +530,9 @@ def _prepare_ordered_data(data_path, transform, num_workers=0, batch_size=4, spl
     if not split_path.exists():
         raise FileNotFoundError(f"{split_path} does not exist.")
         
-    ordered_dataset = datasets.ImageFolder(root=split_path, transform=transform)
-    image_paths = [path for path,_ in ordered_dataset.samples]
-    ordered_loader = DataLoader(ordered_dataset,
+    dataset = datasets.ImageFolder(root=split_path, transform=transform)
+    image_paths = [path for path,_ in dataset.samples]
+    ordered_loader = DataLoader(dataset,
                                 batch_size=batch_size,
                                 num_workers=num_workers,
                                 shuffle=False,  # do not change

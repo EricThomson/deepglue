@@ -4,7 +4,6 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
-import pytest
 
 from deepglue.training_utils import train_one_epoch  
 from deepglue.training_utils import validate_one_epoch
@@ -12,6 +11,8 @@ from deepglue.training_utils import train_and_validate
 from deepglue.training_utils import accuracy
 from deepglue.training_utils import predict_all
 from deepglue.training_utils import predict_batch
+from deepglue.training_utils import prepare_ordered_data
+from deepglue.training_utils import extract_features
 
 from conftest import BATCH_SIZE, NUM_CLASSES, NUM_SAMPLES
 
@@ -263,3 +264,15 @@ def test_predict_batch(simple_cnn_model, dummy_image_data):
         "All probabilities should be in the range [0, 1]."
     assert torch.allclose(probability_matrix.sum(dim=1), torch.tensor(1.0)), \
         "Each row of probability_matrix should sum to 1."
+    
+def test_extract_features():
+    """
+    Not imoplemented yet
+    """
+    assert False
+
+def test_prepare_ordered_data():
+    """
+    Not implmented yet
+    """
+    assert False
