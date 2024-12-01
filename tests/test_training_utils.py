@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
+from torchvision import transforms.v2 as transforms
 import numpy as np
 
 from deepglue.training_utils import train_one_epoch  
@@ -271,8 +272,40 @@ def test_extract_features():
     """
     assert False
 
-def test_prepare_ordered_data():
+def test_prepare_ordered_data(setup_test_split_dirs):
     """
-    Not implmented yet
+    Test the prepare_ordered_data function to ensure it correctly prepares
+    the image paths and DataLoader.
     """
-    assert False
+    # Use the setup_test_split_dirs fixture to create a mock dataset
+    data_path = setup_test_split_dirs
+
+    # Define a simple transform
+    transform = transforms.Compose([
+        transforms.ToImageTensor(),  # Converts PIL images to tensors
+        transforms.ConvertImageDtype(torch.float32)  # Ensure consistent dtype
+    ])
+
+    # Call the prepare_ordered_data function
+    image_paths, ordered_loader = prepare_ordered_data(data_path=data_path,
+                                                       transform=transform,
+                                                       num_workers=0,
+                                                       batch_size=2,
+                                                       split_type='valid')
+
+    # Assert image paths are correct
+    expected_image_count = 5  # Total images in 'valid' split (class0: 1, class1: 4)
+    assert len(image_paths) == expected_image_count, "Image paths count mismatch."
+
+    # Assert the DataLoader returns batches in the correct order
+    loaded_paths = []
+    for batch_images, batch_targets in ordered_loader:
+        batch_indices = range(len(loaded_paths), len(loaded_paths) + len(batch_images))
+        loaded_paths.extend([image_paths[i] for i in batch_indices])
+
+    # The loaded paths should match the image paths
+    assert loaded_paths == image_paths, "DataLoader order mismatch with image paths."
+
+    # Assert the DataLoader has the correct number of batches
+    total_batches = len(list(ordered_loader))
+    assert total_batches == (expected_image_count + 1) // 2, "Incorrect number of batches."

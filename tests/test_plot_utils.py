@@ -1,14 +1,19 @@
 # tests/test_plot_utils.py
+import base64
+from io import BytesIO
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 import pytest
 import torch
+from unittest.mock import patch
 
 from deepglue.plot_utils import plot_random_sample
 from deepglue.plot_utils import plot_random_category_sample
 from deepglue.plot_utils import convert_for_plotting  
 from deepglue.plot_utils import plot_prediction_grid
+from deepglue.plot_utils import embeddable_image
+from deepglue.plot_utils import plot_interactive_umap
 
 
 @pytest.fixture
@@ -83,7 +88,9 @@ def test_plot_random_sample(create_populated_test_split_dirs):
 
 
 def test_plot_random_category_sample(create_populated_test_split_dirs):
-    """Test that plot_category_sample() runs without error and returns valid objects."""
+    """
+    Test that plot_category_sample() runs without error and returns valid objects.
+    """
     data_path = create_populated_test_split_dirs  # Use the temporary test directory fixture
 
     # Call the function with one category
@@ -153,3 +160,77 @@ def test_plot_prediction_grid():
     assert axes.shape == (nrows, ncols), f"Expected axes shape ({nrows}, {ncols}), got {axes.shape}."
 
     plt.close(fig)  # Close the plot after testing to free up memory
+
+def test_embeddable_image(setup_test_split_dirs):
+    """
+    Test the `embeddable_image` function to ensure it generates a valid Base64 string.
+
+    Parameters
+    ----------
+    setup_test_split_dirs : Path
+        Temporary directory with test data structure created by the fixture.
+    """
+    # Get the path to one of the dummy images
+    dummy_image_path = setup_test_split_dirs / "train" / "class0" / "image_0.png"
+    
+    # Generate a dummy image for testing (overwriting the blank file)
+    image_array = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
+    image = Image.fromarray(image_array)
+    image.save(dummy_image_path, format="PNG")
+
+    # Call the function
+    base64_string = embeddable_image(dummy_image_path, size=(25, 25))
+
+    # Check that the output is a valid Base64 image string
+    # encoded data is comma-deliminted into metadata and image data 
+    # get the initial part (the metadata) and make sure it's what we intend
+    assert base64_string.startswith("data:image/jpeg;base64,")
+
+    # following gets the second part: the actual Base64-encoded image data
+    encoded_data = base64_string.split(",")[1]
+    decoded_data = base64.b64decode(encoded_data)
+    
+    # Verify that the decoded data is a valid image
+    image = Image.open(BytesIO(decoded_data))
+    assert image.size == (25, 25)
+    assert image.mode == "RGB"
+
+def test_plot_interactive_umap(tmp_path):
+    """
+    Test the interactive UMAP plotting function to ensure it completes without errors.
+    
+    Parameters
+    ----------
+    tmp_path : fixture
+        Temporary directory for creating and accessing fake image files.
+
+    TODO: fix this -- it keeps opening browser tab when it is run
+    """
+    assert False
+    # # Generate dummy data
+    # features_2d = np.random.rand(10, 2)  # 10 points in 2D space
+    # labels = list(range(10))  # Labels for each point
+    # category_map = {str(i): f"Category {i}" for i in range(10)}
+    # image_paths = [(tmp_path / f"image_{i}.png").as_posix() for i in range(10)]  # Fake image paths
+
+    # # Create random images for embedding
+    # for path in image_paths:
+    #     random_image = (np.random.rand(50, 50, 3) * 255).astype(np.uint8)  # Random RGB image
+    #     img = Image.fromarray(random_image)
+    #     img.save(path)  # Save the image as PNG
+
+    # # Mock `show()` to suppress opening a browser tab
+    # with patch("bokeh.plotting.show"):
+    #     plot = plot_interactive_umap(
+    #         features_2d=features_2d,
+    #         labels=labels,
+    #         image_paths=image_paths,
+    #         image_size=(25, 25),
+    #         category_map=category_map,
+    #         show_in_notebook=False
+    #     )
+
+    #     # Assertions
+    #     assert plot is not None, "The plot returned is None."
+    #     assert plot.title.text == "UMAP Features", "The plot title is incorrect."
+    #     assert len(plot.renderers) > 0, "No renderers were added to the plot."
