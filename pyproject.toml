@@ -15,7 +15,8 @@ dependencies = [
     "scikit-learn",
     "scikit-image",
     "joblib",
-    "tqdm"
+    "tqdm",
+    "bokeh"
     ]
 classifiers = [
     "Programming Language :: Python :: 3",

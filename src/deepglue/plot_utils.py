@@ -4,9 +4,18 @@ deepglue plot_utils.py
 Module includes functions that are useful for plotting/visualization during different
 deep learning tasks
 """
+import base64
+from bokeh.io import curdoc
+from bokeh.models import BoxZoomTool, HoverTool
+from bokeh.models import ColumnDataSource, CategoricalColorMapper
+from bokeh.plotting import figure, show, output_notebook
+from bokeh.plotting import output_notebook, output_file, reset_output
+from io import BytesIO
 import logging
+from matplotlib.colors import rgb2hex
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from pathlib import Path
 from PIL import Image
 import torch
@@ -496,3 +505,139 @@ def plot_prediction_grid(images, probability_matrix, true_categories, category_m
         unused_ax.axis("off")
         
     return fig, axes
+
+
+def embeddable_image(image_path, size=(50, 50), quality=50):
+    """
+    Converts an image to a Base64-encoded string for embedding in HTML.
+
+    Loads an image from disk, resizes it, and converts it to a specified format
+    (default is JPEG). The processed image is then Base64-encoded and returned as a
+    string that can be embedded in HTML or visualized interactively using tools like Bokeh.
+
+    Parameters
+    ----------
+    image_path : str or Path
+        Path to the input image file.
+    size : tuple of int, optional
+        Desired size for the resized image as (width, height). Defaults to (50, 50).
+    format : str, optional
+        Image format for saving. Supported formats include 'JPEG' and 'PNG'. Defaults to 'JPEG'.
+    quality : int, optional
+        Compression quality for the image 
+        Valid values are between 1 (worst) and 95 (best). Defaults to 50.
+
+    Returns
+    -------
+    str
+        A Base64-encoded string representing the processed image, ready for embedding.
+
+    Notes
+    -----
+    - Adapted from umap example at https://umap-learn.readthedocs.io/en/latest/basic_usage.html
+    """
+    image = Image.open(image_path).convert('RGB').resize(size, Image.Resampling.BICUBIC)
+
+    # Save the image to a memory buffer
+    buffer = BytesIO()
+    image.save(buffer, format="JPEG", quality=quality)
+    #buffer.seek(0)  # Ensure the buffer is at the beginning
+
+    # Convert the image to Base64 encoding
+    base64_encoded = base64.b64encode(buffer.getvalue()).decode()
+
+    # Return the Base64 string with the data URI prefix
+    return f'data:image/jpeg;base64,{base64_encoded}'
+
+
+def plot_interactive_umap(features_2d, labels, image_paths, category_map,
+                          title='UMAP Features', image_size=(50, 50), plot_size=800,
+                          show_in_notebook=True):
+    """
+    Create an interactive Bokeh plot for UMAP feature visualization.
+
+    Given 2d projection of features from nn layer using umap, 
+
+    Parameters
+    ----------
+    features_2d : array-like
+        2D array of features obtained after UMAP dimensionality reduction (num_samples, 2).
+    labels : list
+        List of integer labels for the data points (len num_samples).
+    image_paths : list
+        List of file paths to the images corresponding to the features (len num_samples).
+    category_map : dict
+        Mapping of integer labels to category names.
+    title : str, optional
+        Title of the plot. Defaults to 'UMAP Features'.
+    image_size : tuple, optional
+        Size of the images displayed in the tooltips (width, height). Defaults to (50, 50).
+    plot_size : int, optional
+        Size of the plot (width and height in pixels). Defaults to 800.
+    show_in_notebook : bool, optional
+        If True, display the plot inline in a Jupyter Notebook.
+        If False, open the plot in a new browser tab (umap_plot.html). Defaults to True.
+
+    Returns
+    -------
+    None
+        Displays the interactive plot.
+    """
+    reset_output() # just so you don't update things outside of the current window
+    
+    class_names = list(category_map.values())
+
+    # Prepare the DataFrame
+    df = pd.DataFrame(features_2d, columns=('x', 'y'))
+    df['category'] = [category_map[str(label)] for label in labels]
+    df['image'] = list(map(embeddable_image, image_paths))
+    df.insert(0, 'index', df.index)
+
+    # Create a ColumnDataSource from the DataFrame
+    datasource = ColumnDataSource(df)
+
+    # Set up color mapping with consistent colors as in the static plot
+    cmap = plt.cm.Spectral
+    colors = [cmap(i / len(class_names)) for i in range(len(class_names))]
+    hex_colors = [rgb2hex(c) for c in colors]
+
+    color_mapping = CategoricalColorMapper(
+        factors=class_names,
+        palette=hex_colors
+    )
+
+    # Define the tooltip HTML
+    tooltips = """
+    <div>
+        <img src='@image' style='margin: 8px 0 0 0;'/>
+        <br>@category (@index)
+    </div>
+    """
+
+    # Create the Bokeh figure
+    plot_figure = figure(title=title,
+                         width=plot_size,
+                         height=plot_size,
+                         tools=('pan, box_zoom, wheel_zoom, reset'),
+                         tooltips=tooltips)
+
+    # Add scatter points to the plot
+    plot_figure.scatter('x', 'y',
+                         source=datasource,
+                         color=dict(field='category', 
+                                    transform=color_mapping),
+                         line_alpha=0.6,
+                         fill_alpha=0.6,
+                         size=6)
+
+    # Apply the dark minimal theme
+    curdoc().theme = 'dark_minimal'
+
+    # Set output target based on the `show_in_notebook` parameter
+    if show_in_notebook:
+        output_notebook()
+    else:
+        output_file("umap_plot.html", title=title)
+
+    # Display the plot
+    show(plot_figure)
