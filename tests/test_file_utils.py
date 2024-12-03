@@ -50,11 +50,11 @@ def test_create_subdirs(tmp_path):
 
 
 
-def test_count_category_by_split(setup_test_split_dirs):
+def test_count_category_by_split(setup_test_dataset):
     """
     Test that count_category_by_split correctly counts the number of images in each category.
     """
-    data_path = setup_test_split_dirs
+    data_path = setup_test_dataset
     counts = count_category_by_split(data_path)
     
     expected_counts = {
@@ -66,14 +66,14 @@ def test_count_category_by_split(setup_test_split_dirs):
     assert counts == expected_counts, "Counts do not match expected values."
 
 
-def test_missing_split_directory(setup_test_split_dirs):
+def test_missing_split_directory(setup_test_dataset):
     """
     Test that count_category_by_split raises a FileNotFoundError when a split directory is missing.
 
     This test removes the 'valid' directory from the standard setup to simulate what happens
     when a part of the expected directory structure is missing.
     """
-    data_path = setup_test_split_dirs
+    data_path = setup_test_dataset
 
     # Simulate missing 'valid' directory by removing it along with its contents
     shutil.rmtree(data_path / 'valid')
@@ -83,12 +83,12 @@ def test_missing_split_directory(setup_test_split_dirs):
         count_category_by_split(data_path)
 
 
-def test_count_by_category(setup_test_split_dirs):
+def test_count_by_category(setup_test_dataset):
     """
     Test that count_by_category correctly calculates the total number of images
     for each category across all splits.
     """
-    data_path = setup_test_split_dirs
+    data_path = setup_test_dataset
     counts = count_by_category(data_path)
 
     expected_counts = {
@@ -99,12 +99,12 @@ def test_count_by_category(setup_test_split_dirs):
     assert counts == expected_counts, "The category counts do not match the expected values."
 
 
-def test_count_by_split(setup_test_split_dirs):
+def test_count_by_split(setup_test_dataset):
     """
     Test that get_samples_per_split correctly calculates the total number of samples
     in each split (train, valid, test) regardless of categories.
     """
-    data_path = setup_test_split_dirs
+    data_path = setup_test_dataset
     counts = count_by_split(data_path)
 
     expected_counts = {
@@ -116,9 +116,11 @@ def test_count_by_split(setup_test_split_dirs):
     assert counts == expected_counts, "The total sample counts per split do not match the expected values."
 
 
-def test_sample_random_images_across_categories(setup_test_split_dirs):
-    """Test sampling images in the train split."""
-    data_path = setup_test_split_dirs
+def test_sample_random_images_across_categories(setup_test_dataset):
+    """
+    Test sampling images in the train split.
+    """
+    data_path = setup_test_dataset
     category_map = {'class0': 'class0', 'class1': 'class1'}
 
     sampled_paths, sampled_categories = sample_random_images(data_path=data_path,
@@ -130,16 +132,17 @@ def test_sample_random_images_across_categories(setup_test_split_dirs):
     assert len(sampled_categories) == 4
 
 
-def test_sample_random_images_from_category(setup_test_split_dirs):
-    """Test sampling images from a specific category in the valid split."""
-    data_path = setup_test_split_dirs
+def test_sample_random_images_from_category(setup_test_dataset):
+    """
+    Test sampling images from a specific category in the valid split.
+    """
+    data_path = setup_test_dataset
     category_map = {'class0': 'class0', 'class1': 'class1'}
 
     sampled_paths, sampled_categories = sample_random_images(data_path=data_path,
                                                              category_map=category_map,
                                                              num_images=2,
                                                              split_type='valid',
-
                                                              category='class1')
     # only 2 images were requested
     assert len(sampled_paths) == 2
@@ -147,9 +150,9 @@ def test_sample_random_images_from_category(setup_test_split_dirs):
     assert all(category == 'class1' for category in sampled_categories)
 
 
-def test_sample_random_images_exceeding_available(setup_test_split_dirs, caplog):
+def test_sample_random_images_exceeding_available(setup_test_dataset, caplog):
     """Test sampling more images than available with proper warning."""
-    data_path = setup_test_split_dirs
+    data_path = setup_test_dataset
     category_map = {'class0': 'class0', 'class1': 'class1'}
 
     with caplog.at_level(logging.WARNING):

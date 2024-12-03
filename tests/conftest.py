@@ -7,6 +7,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
+from pathlib import Path
+from PIL import Image
 import pytest
 
 # Constants to build dummy data/networks in fixtures across these tests
@@ -43,7 +45,7 @@ def dummy_image_data():
     """
     Fixture for generating a batch of dummy image data.
 
-    Creates random image data with shape (10, 3, IMAGE_HEIGHT, IMAGE_WIDTH) 
+    Creates random image data with shape (NUM_SAMPLES, 3, IMAGE_HEIGHT, IMAGE_WIDTH) 
     and random labels for each image.
 
     Returns
@@ -57,15 +59,15 @@ def dummy_image_data():
 
 
 @pytest.fixture
-def setup_test_split_dirs(tmp_path):
+def setup_test_dataset(tmp_path):
     """
-    Sets up temporary test directories for train, valid, and test with sample images
-    in different categories.
+    Sets up temporary test dataset for train, valid, and test with sample images
+    in two categories.
 
     Standard structure:
         tmp_path/
             train/
-                class0/   [3 images]
+                class0/   [3 images] image_0.png, image_1.png, image_2.png
                 class1/   [2 images]
             valid/
                 class0/   [1 image]
@@ -101,6 +103,11 @@ def setup_test_split_dirs(tmp_path):
 
             # Create the specified number of dummy image files
             for i in range(count):
-                (category_dir / f'image_{i}.png').touch()
+                image_path = category_dir / f'image_{i}.png'
+                # Create a simple solid-color image
+                img = Image.new('RGB', 
+                                (IMAGE_WIDTH, IMAGE_HEIGHT), 
+                                color=(i * 20 % 255, i * 30 % 255, i * 40 % 255))
+                img.save(image_path)
 
     return tmp_path

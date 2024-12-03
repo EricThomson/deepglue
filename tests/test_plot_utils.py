@@ -161,7 +161,7 @@ def test_plot_prediction_grid():
 
     plt.close(fig)  # Close the plot after testing to free up memory
 
-def test_embeddable_image(setup_test_split_dirs):
+def test_embeddable_image(setup_test_dataset):
     """
     Test the `embeddable_image` function to ensure it generates a valid Base64 string.
 
@@ -171,13 +171,8 @@ def test_embeddable_image(setup_test_split_dirs):
         Temporary directory with test data structure created by the fixture.
     """
     # Get the path to one of the dummy images
-    dummy_image_path = setup_test_split_dirs / "train" / "class0" / "image_0.png"
+    dummy_image_path = setup_test_dataset / "train" / "class0" / "image_0.png"
     
-    # Generate a dummy image for testing (overwriting the blank file)
-    image_array = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
-    image = Image.fromarray(image_array)
-    image.save(dummy_image_path, format="PNG")
-
     # Call the function
     base64_string = embeddable_image(dummy_image_path, size=(25, 25))
 
