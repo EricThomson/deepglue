@@ -441,7 +441,7 @@ def extract_features(dataloader, feature_extractor, layer, device='cuda'):
 
     TODO
     ----
-    - Add optimizations (quantization, out-of-core computation with dask and xarray, etc) for very large arrays.
+    - Add optimizations for very large arrays (eg quantization, out-of-core computation with dask and xarray, etc).
     """
 
     logging.info(f"Feature extraction starting for layer '{layer}'. Setup can take a minute.")

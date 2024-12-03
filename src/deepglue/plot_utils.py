@@ -509,10 +509,10 @@ def plot_prediction_grid(images, probability_matrix, true_categories, category_m
 
 def create_embeddable_image(image_path, size=(50, 50), quality=50):
     """
-    Converts an image to a Base64-encoded string for embedding in HTML.
+    Converts an image to a base64-encoded string for embedding in HTML.
 
     Loads an image from disk, resizes it, and converts it to a specified format
-    (default is JPEG). The processed image is then Base64-encoded and returned as a
+    (default is JPEG). The processed image is then base64-encoded and returned as a
     string that can be embedded in HTML or visualized interactively using tools like Bokeh.
 
     Parameters

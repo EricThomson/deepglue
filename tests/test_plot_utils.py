@@ -190,42 +190,62 @@ def test_create_embeddable_image(setup_test_dataset):
     assert image.size == (25, 25)
     assert image.mode == "RGB"
 
-def test_plot_interactive_umap(tmp_path):
-    """
-    Test the interactive UMAP plotting function to ensure it completes without errors.
-    
-    Parameters
-    ----------
-    tmp_path : fixture
-        Temporary directory for creating and accessing fake image files.
+import pandas as pd
+from bokeh.models import ColumnDataSource
 
-    TODO: fix this -- it keeps opening browser tab when it is run
+def test_plot_interactive_umap(mocker):
+    """
+    Test the plot_interactive_umap function to ensure it processes inputs correctly
+    and configures the Bokeh figure as expected.
     """
     assert False
-    # # Generate dummy data
-    # features_2d = np.random.rand(10, 2)  # 10 points in 2D space
-    # labels = list(range(10))  # Labels for each point
-    # category_map = {str(i): f"Category {i}" for i in range(10)}
-    # image_paths = [(tmp_path / f"image_{i}.png").as_posix() for i in range(10)]  # Fake image paths
+    # # Mock inputs
+    # features_2d = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]]  # Example UMAP features
+    # labels = [0, 1, 0]  # Integer labels
+    # image_paths = ["image1.jpg", "image2.jpg", "image3.jpg"]
+    # category_map = {"0": "Class A", "1": "Class B"}
 
-    # # Create random images for embedding
-    # for path in image_paths:
-    #     random_image = (np.random.rand(50, 50, 3) * 255).astype(np.uint8)  # Random RGB image
-    #     img = Image.fromarray(random_image)
-    #     img.save(path)  # Save the image as PNG
+    # # Mock the create_embeddable_image function
+    # mock_embeddable_image = mocker.patch(
+    #     "your_module.embeddable_image",
+    #     side_effect=lambda path, size: f"data:image;base64,{path}"
+    # )
 
-    # # Mock `show()` to suppress opening a browser tab
-    # with patch("bokeh.plotting.show"):
-    #     plot = plot_interactive_umap(
-    #         features_2d=features_2d,
-    #         labels=labels,
-    #         image_paths=image_paths,
-    #         image_size=(25, 25),
-    #         category_map=category_map,
-    #         show_in_notebook=False
-    #     )
+    # # Call the function
+    # mock_show = mocker.patch("bokeh.plotting.show")  # Prevent actual rendering
+    # plot_interactive_umap(features_2d, labels, image_paths, category_map, show_in_notebook=False)
 
-    #     # Assertions
-    #     assert plot is not None, "The plot returned is None."
-    #     assert plot.title.text == "UMAP Features", "The plot title is incorrect."
-    #     assert len(plot.renderers) > 0, "No renderers were added to the plot."
+    # # Validate the embeddable_image calls
+    # mock_embeddable_image.assert_has_calls([
+    #     mocker.call("image1.jpg", size=(50, 50)),
+    #     mocker.call("image2.jpg", size=(50, 50)),
+    #     mocker.call("image3.jpg", size=(50, 50))
+    # ])
+
+    # # Check that the ColumnDataSource contains the correct data
+    # df = pd.DataFrame(features_2d, columns=("x", "y"))
+    # df["category"] = [category_map[str(label)] for label in labels]
+    # df["image"] = [f"data:image;base64,{path}" for path in image_paths]
+
+    # # Validate the ColumnDataSource
+    # datasource = ColumnDataSource(df)
+    # assert datasource.data["x"].tolist() == [0.1, 0.3, 0.5]
+    # assert datasource.data["y"].tolist() == [0.2, 0.4, 0.6]
+    # assert datasource.data["category"] == ["Class A", "Class B", "Class A"]
+    # assert datasource.data["image"] == ["data:image;base64,image1.jpg",
+    #                                      "data:image;base64,image2.jpg",
+    #                                      "data:image;base64,image3.jpg"]
+
+    # # Check the figure configuration
+    # plot_figure = mocker.patch("bokeh.plotting.figure").return_value
+    # plot_figure.scatter.assert_called_once_with(
+    #     "x", "y",
+    #     source=datasource,
+    #     color=pytest.ANY,  # Color mapper
+    #     line_alpha=0.6,
+    #     fill_alpha=0.6,
+    #     size=6
+    # )
+
+    # # Check the output
+    # mock_show.assert_called_once()  # Ensure the plot rendering function was called

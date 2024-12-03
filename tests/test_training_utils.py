@@ -3,8 +3,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-
+from torchvision.models.feature_extraction import create_feature_extractor
 import numpy as np
+import pytest
 
 from deepglue.training_utils import train_one_epoch  
 from deepglue.training_utils import validate_one_epoch
@@ -15,7 +16,7 @@ from deepglue.training_utils import predict_batch
 from deepglue.training_utils import prepare_ordered_data
 from deepglue.training_utils import extract_features
 
-from conftest import BATCH_SIZE, NUM_CLASSES, NUM_SAMPLES, simple_transform
+from conftest import BATCH_SIZE, NUM_CLASSES, NUM_SAMPLES, IMAGE_HEIGHT, IMAGE_WIDTH, simple_transform
 
 def test_accuracy():
     # Example 1: Simple case with batch size 4 and 3 classes
@@ -266,11 +267,6 @@ def test_predict_batch(simple_cnn_model, dummy_image_data):
     assert torch.allclose(probability_matrix.sum(dim=1), torch.tensor(1.0)), \
         "Each row of probability_matrix should sum to 1."
     
-def test_extract_features():
-    """
-    Not imoplemented yet
-    """
-    assert False
 
 def test_prepare_ordered_data(setup_test_dataset):
     """
@@ -293,5 +289,46 @@ def test_prepare_ordered_data(setup_test_dataset):
     for batch_images, _ in ordered_loader:
         loaded_image_count += len(batch_images)
     assert loaded_image_count == expected_image_count, "Mismatch in total images returned by DataLoader."
+
+
+def test_extract_features(setup_test_dataset, simple_cnn_model):
+    """
+    Test the extract_features function using an ordered DataLoader
+    created by prepare_ordered_data.
+    """
+    # Use the setup_test_dataset fixture to create a temporary dataset
+    data_path = setup_test_dataset
+
+    # Create the ordered DataLoader and image paths using prepare_ordered_data
+    image_paths, ordered_loader = prepare_ordered_data(data_path=data_path,
+                                                       transform=simple_transform,
+                                                       num_workers=0,
+                                                       batch_size=2,
+                                                       split_type="valid")
+
+    # Use the simple CNN model as the base for feature extraction
+    feature_extractor = create_feature_extractor(simple_cnn_model, return_nodes={"conv": "features"})
+    layer_name = "features"
+
+    features, extracted_labels = extract_features(ordered_loader, feature_extractor, layer_name, device="cpu")
+
+    # Check the feature shape
+    expected_feature_size = 16 * IMAGE_HEIGHT * IMAGE_WIDTH  # Conv output: channels * height * width
+    expected_image_count = len(image_paths)
+    assert features.shape == (expected_image_count, expected_feature_size), "Feature shape mismatch."
+
+    # Check the labels shape
+    assert extracted_labels.shape == (expected_image_count,), "Label shape mismatch."
+
+    # Confirm the the extracted labels match the dataset order
+    dataset_labels = [label for _, label in ordered_loader.dataset.samples]
+    assert (extracted_labels == np.array(dataset_labels)).all(), "Extracted labels mismatch."
+
+    # Test non-existent layer throws proper exception
+    with pytest.raises(KeyError, match="Layer 'invalid_layer' not found in the feature extractor outputs!"):
+        extract_features(ordered_loader, feature_extractor, layer="invalid_layer", device="cpu")
+
+
+
 
 
