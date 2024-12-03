@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-import torchvision.transforms.v2 as transforms
+
 import numpy as np
 
 from deepglue.training_utils import train_one_epoch  
@@ -15,7 +15,7 @@ from deepglue.training_utils import predict_batch
 from deepglue.training_utils import prepare_ordered_data
 from deepglue.training_utils import extract_features
 
-from conftest import BATCH_SIZE, NUM_CLASSES, NUM_SAMPLES
+from conftest import BATCH_SIZE, NUM_CLASSES, NUM_SAMPLES, simple_transform
 
 def test_accuracy():
     # Example 1: Simple case with batch size 4 and 3 classes
@@ -272,40 +272,26 @@ def test_extract_features():
     """
     assert False
 
-# def test_prepare_ordered_data(setup_test_split_dirs):
-#     """
-#     Test the prepare_ordered_data function to ensure it correctly prepares
-#     the image paths and DataLoader.
-#     """
-#     # Use the setup_test_split_dirs fixture to create a mock dataset
-#     data_path = setup_test_split_dirs
+def test_prepare_ordered_data(setup_test_dataset):
+    """
+    Test the prepare_ordered_data function to ensure it correctly prepares
+    the image paths and data loader.  
+    """
+    data_path = setup_test_dataset
+    image_paths, ordered_loader = prepare_ordered_data(data_path=data_path,
+                                                       transform=simple_transform,
+                                                       num_workers=0,
+                                                       batch_size=2,
+                                                       split_type='valid')
 
-#     # Define a simple transform
-#     transform = transforms.Compose([
-#         transforms.ToImage(),  # Converts PIL images to tensors
-#         transforms.ToDtype(torch.float32)  # Ensure consistent dtype
-#     ])
+    # Total number of paths should equal number of validation images
+    expected_image_count = 5  # Total images in 'valid' split (class0: 1, class1: 4)
+    assert len(image_paths) == expected_image_count, "Image paths count mismatch."
 
-#     # Call the prepare_ordered_data function
-#     image_paths, ordered_loader = prepare_ordered_data(data_path=data_path,
-#                                                        transform=transform,
-#                                                        num_workers=0,
-#                                                        batch_size=2,
-#                                                        split_type='valid')
+    # Check that the DataLoader loads the correct number of images
+    loaded_image_count = 0
+    for batch_images, _ in ordered_loader:
+        loaded_image_count += len(batch_images)
+    assert loaded_image_count == expected_image_count, "Mismatch in total images returned by DataLoader."
 
-#     # Assert image paths are correct
-#     expected_image_count = 5  # Total images in 'valid' split (class0: 1, class1: 4)
-#     assert len(image_paths) == expected_image_count, "Image paths count mismatch."
 
-#     # Assert the DataLoader returns batches in the correct order
-#     loaded_paths = []
-#     for batch_images, batch_targets in ordered_loader:
-#         batch_indices = range(len(loaded_paths), len(loaded_paths) + len(batch_images))
-#         loaded_paths.extend([image_paths[i] for i in batch_indices])
-
-#     # The loaded paths should match the image paths
-#     assert loaded_paths == image_paths, "DataLoader order mismatch with image paths."
-
-#     # Assert the DataLoader has the correct number of batches
-#     total_batches = len(list(ordered_loader))
-#     assert total_batches == (expected_image_count + 1) // 2, "Incorrect number of batches."

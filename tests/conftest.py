@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
+import torchvision.transforms.v2 as transforms
 import numpy as np
 from pathlib import Path
 from PIL import Image
@@ -17,6 +18,11 @@ BATCH_SIZE = 2
 NUM_CLASSES = 3
 IMAGE_HEIGHT = 32
 IMAGE_WIDTH = 32
+
+# Some dataloaders etc need a transform just use this
+simple_transform =   transforms.Compose([transforms.ToImage(),  # Converts PIL images to tensors
+                                         transforms.ToDtype(torch.float32)  # Ensure consistent dtype
+                                         ])
 
 @pytest.fixture()
 def simple_cnn_model():
