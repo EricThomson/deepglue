@@ -12,7 +12,7 @@ from deepglue.plot_utils import plot_random_sample
 from deepglue.plot_utils import plot_random_category_sample
 from deepglue.plot_utils import convert_for_plotting  
 from deepglue.plot_utils import plot_prediction_grid
-from deepglue.plot_utils import embeddable_image
+from deepglue.plot_utils import create_embeddable_image
 from deepglue.plot_utils import plot_interactive_umap
 
 
@@ -161,9 +161,9 @@ def test_plot_prediction_grid():
 
     plt.close(fig)  # Close the plot after testing to free up memory
 
-def test_embeddable_image(setup_test_dataset):
+def test_create_embeddable_image(setup_test_dataset):
     """
-    Test the `embeddable_image` function to ensure it generates a valid Base64 string.
+    Test the `embeddable_image` function to ensure it runs w/o error and generates a valid Base64 string.
 
     Parameters
     ----------
@@ -174,10 +174,10 @@ def test_embeddable_image(setup_test_dataset):
     dummy_image_path = setup_test_dataset / "train" / "class0" / "image_0.png"
     
     # Call the function
-    base64_string = embeddable_image(dummy_image_path, size=(25, 25))
+    base64_string = create_embeddable_image(dummy_image_path, size=(25, 25))
 
     # Check that the output is a valid Base64 image string
-    # encoded data is comma-deliminted into metadata and image data 
+    # Note: encoded data is comma-deliminted into metadata and image data 
     # get the initial part (the metadata) and make sure it's what we intend
     assert base64_string.startswith("data:image/jpeg;base64,")
 
@@ -185,7 +185,7 @@ def test_embeddable_image(setup_test_dataset):
     encoded_data = base64_string.split(",")[1]
     decoded_data = base64.b64decode(encoded_data)
     
-    # Verify that the decoded data is a valid image
+    # Verify basic image properties
     image = Image.open(BytesIO(decoded_data))
     assert image.size == (25, 25)
     assert image.mode == "RGB"

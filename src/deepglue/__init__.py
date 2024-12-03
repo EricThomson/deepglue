@@ -21,7 +21,7 @@ from .plot_utils import convert_for_plotting
 from .plot_utils import plot_prediction_image
 from .plot_utils import plot_prediction_probs
 from .plot_utils import plot_prediction_grid
-from .plot_utils import embeddable_image
+from .plot_utils import create_embeddable_image
 from .plot_utils import plot_interactive_umap
 
 from .file_utils import create_subdirs
@@ -49,7 +49,7 @@ __all__ = ["train_one_epoch",
            "plot_prediction_image",
            "plot_prediction_probs",
            "plot_prediction_grid",
-           "embeddable_image",
+           "create_embeddable_image",
            "plot_interactive_umap",
 
            "create_subdirs", 

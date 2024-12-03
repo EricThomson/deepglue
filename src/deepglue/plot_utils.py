@@ -507,7 +507,7 @@ def plot_prediction_grid(images, probability_matrix, true_categories, category_m
     return fig, axes
 
 
-def embeddable_image(image_path, size=(50, 50), quality=50):
+def create_embeddable_image(image_path, size=(50, 50), quality=50):
     """
     Converts an image to a Base64-encoded string for embedding in HTML.
 
