@@ -47,6 +47,7 @@ dev = [
     "pytest",                       # Testing framework
     "ruff",                         # Code linter
     "pytest-cov",                   # Test coverage plugin for pytest
+    "pytest-mock",                  # Mocking support for pytest
     "pydocstyle",                    # Docstrings linter
 ]
 

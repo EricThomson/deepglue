@@ -590,7 +590,7 @@ def plot_interactive_umap(features_2d, labels, image_paths, category_map,
     # Prepare the DataFrame
     df = pd.DataFrame(features_2d, columns=('x', 'y'))
     df['category'] = [category_map[str(label)] for label in labels]
-    df['image'] = list(map(lambda path: embeddable_image(path, size=image_size), image_paths))
+    df['image'] = list(map(lambda path: create_embeddable_image(path, size=image_size), image_paths))
 
     df.insert(0, 'index', df.index)
 
@@ -642,3 +642,6 @@ def plot_interactive_umap(features_2d, labels, image_paths, category_map,
 
     # Display the plot
     show(plot_figure)
+
+
+

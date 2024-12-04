@@ -193,59 +193,43 @@ def test_create_embeddable_image(setup_test_dataset):
 import pandas as pd
 from bokeh.models import ColumnDataSource
 
+
+
+
+
+
 def test_plot_interactive_umap(mocker):
     """
     Test the plot_interactive_umap function to ensure it processes inputs correctly
     and configures the Bokeh figure as expected.
     """
-    assert False
-    # # Mock inputs
-    # features_2d = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]]  # Example UMAP features
-    # labels = [0, 1, 0]  # Integer labels
-    # image_paths = ["image1.jpg", "image2.jpg", "image3.jpg"]
-    # category_map = {"0": "Class A", "1": "Class B"}
+    # Mock inputs
+    features_2d = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]]  # Example UMAP features
+    labels = [0, 1, 0]  # Integer labels
+    image_paths = ["image1.jpg", "image2.jpg", "image3.jpg"]
+    category_map = {"0": "Class A", "1": "Class B"}
 
-    # # Mock the create_embeddable_image function
-    # mock_embeddable_image = mocker.patch(
-    #     "your_module.embeddable_image",
-    #     side_effect=lambda path, size: f"data:image;base64,{path}"
-    # )
+    # Mock `show` to prevent rendering
+    with patch("deepglue.plot_utils.show") as mock_show, \
+         patch("deepglue.plot_utils.output_notebook") as mock_output_notebook:
+        # Mock the embeddable image creation
+        mock_embeddable_image = mocker.patch(
+            "deepglue.plot_utils.create_embeddable_image",
+            side_effect=lambda path, size: f"data:image;base64,{path}"
+        )
 
-    # # Call the function
-    # mock_show = mocker.patch("bokeh.plotting.show")  # Prevent actual rendering
-    # plot_interactive_umap(features_2d, labels, image_paths, category_map, show_in_notebook=False)
+        # Call the function
+        plot_interactive_umap(features_2d, labels, image_paths, category_map)
 
-    # # Validate the embeddable_image calls
-    # mock_embeddable_image.assert_has_calls([
-    #     mocker.call("image1.jpg", size=(50, 50)),
-    #     mocker.call("image2.jpg", size=(50, 50)),
-    #     mocker.call("image3.jpg", size=(50, 50))
-    # ])
+        # Validate `create_embeddable_image` was called for all paths
+        mock_embeddable_image.assert_has_calls([
+            mocker.call("image1.jpg", size=(50, 50)),
+            mocker.call("image2.jpg", size=(50, 50)),
+            mocker.call("image3.jpg", size=(50, 50)),
+        ])
 
-    # # Check that the ColumnDataSource contains the correct data
-    # df = pd.DataFrame(features_2d, columns=("x", "y"))
-    # df["category"] = [category_map[str(label)] for label in labels]
-    # df["image"] = [f"data:image;base64,{path}" for path in image_paths]
+        # Assert that `output_notebook` was called once (for inline display)
+        mock_output_notebook.assert_called_once()
 
-    # # Validate the ColumnDataSource
-    # datasource = ColumnDataSource(df)
-    # assert datasource.data["x"].tolist() == [0.1, 0.3, 0.5]
-    # assert datasource.data["y"].tolist() == [0.2, 0.4, 0.6]
-    # assert datasource.data["category"] == ["Class A", "Class B", "Class A"]
-    # assert datasource.data["image"] == ["data:image;base64,image1.jpg",
-    #                                      "data:image;base64,image2.jpg",
-    #                                      "data:image;base64,image3.jpg"]
-
-    # # Check the figure configuration
-    # plot_figure = mocker.patch("bokeh.plotting.figure").return_value
-    # plot_figure.scatter.assert_called_once_with(
-    #     "x", "y",
-    #     source=datasource,
-    #     color=pytest.ANY,  # Color mapper
-    #     line_alpha=0.6,
-    #     fill_alpha=0.6,
-    #     size=6
-    # )
-
-    # # Check the output
-    # mock_show.assert_called_once()  # Ensure the plot rendering function was called
+        # Assert that `show` was called once
+        mock_show.assert_called_once()
