@@ -195,8 +195,9 @@ def test_create_embeddable_image(setup_test_dataset):
 @patch("deepglue.plot_utils.output_notebook")  
 def test_plot_interactive_umap(mock_output_notebook, mock_show, setup_test_dataset):
     """
-    Test the plot_interactive_umap function using real images to validate
-    the complete workflow, including embeddable image generation.
+    Test the plot_interactive_umap function using real images to embed.
+    
+    Validate the complete workflow, and basic bokeh function calls (show and output_notebook).
     """
     # Mock inputs
     features_2d = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]]  # Example UMAP features

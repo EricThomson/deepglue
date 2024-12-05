@@ -16,7 +16,8 @@ from deepglue.training_utils import predict_batch
 from deepglue.training_utils import prepare_ordered_data
 from deepglue.training_utils import extract_features
 
-from conftest import BATCH_SIZE, NUM_CLASSES, NUM_SAMPLES, IMAGE_HEIGHT, IMAGE_WIDTH, simple_transform
+from conftest import BATCH_SIZE, NUM_CLASSES, NUM_SAMPLES, IMAGE_HEIGHT, IMAGE_WIDTH, NUM_FEATURE_MAPS
+from conftest import simple_transform
 
 def test_accuracy():
     # Example 1: Simple case with batch size 4 and 3 classes
@@ -313,7 +314,7 @@ def test_extract_features(setup_test_dataset, simple_cnn_model):
     features, extracted_labels = extract_features(ordered_loader, feature_extractor, layer_name, device="cpu")
 
     # Check the feature shape
-    expected_feature_size = 16 * IMAGE_HEIGHT * IMAGE_WIDTH  # Conv output: channels * height * width
+    expected_feature_size = NUM_FEATURE_MAPS * IMAGE_HEIGHT * IMAGE_WIDTH   # flattened feature size
     expected_image_count = len(image_paths)
     assert features.shape == (expected_image_count, expected_feature_size), "Feature shape mismatch."
 

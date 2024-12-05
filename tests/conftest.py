@@ -12,31 +12,37 @@ from pathlib import Path
 from PIL import Image
 import pytest
 
-# Constants to build dummy data/networks in fixtures across these tests
-NUM_SAMPLES = 10  
-BATCH_SIZE = 2
-NUM_CLASSES = 3
-IMAGE_HEIGHT = 32
+# Constants to build dummy data/networks in fixtures across tests
+NUM_SAMPLES = 10  # number of total samples for dummy dataset (10 images)
+NUM_FEATURE_MAPS = 16 # number of output channels (feature maps) for simple cnn model convolution layer
+BATCH_SIZE = 2 # number of batches used in test dataloaders
+NUM_CLASSES = 3 # number of output classes for  classification tasks
+IMAGE_HEIGHT = 32 
 IMAGE_WIDTH = 32
 
-# Some dataloaders etc need a transform just use this
-simple_transform =   transforms.Compose([transforms.ToImage(),  # Converts PIL images to tensors
-                                         transforms.ToDtype(torch.float32)  # Ensure consistent dtype
-                                         ])
+# Some dataloaders need a transform use this simple little guy
+simple_transform =   transforms.Compose([transforms.ToImage(), 
+                                         transforms.ToDtype(torch.float32)])
 
 @pytest.fixture()
 def simple_cnn_model():
     """
-    Fixture for creating a simple CNN model for image-like data.
+    Fixture for creating a simple CNN model for images.
+
+    This fixture defines and returns a minimal convolutional neural network
+    with:
+    - A single convolutional layer producing NUM_FEATURES feature maps.
+    - A fully connected layer for classification with NUM_CLASSES outputs.
     
-    Defines and returns an instance of a simple convolutional neural network
-    with a single convolutional layer followed by a linear output layer.
+    This model is used in test_training_utils.
     """
     class SimpleCNNModel(nn.Module):
         def __init__(self, num_classes=NUM_CLASSES):
             super(SimpleCNNModel, self).__init__()
-            self.conv = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1, padding=1)
-            self.fc = nn.Linear(16 * IMAGE_HEIGHT * IMAGE_WIDTH, NUM_CLASSES)
+            self.conv = nn.Conv2d(in_channels=3, 
+                                  out_channels=NUM_FEATURE_MAPS, 
+                                  kernel_size=3, stride=1, padding=1)
+            self.fc = nn.Linear(NUM_FEATURE_MAPS * IMAGE_HEIGHT * IMAGE_WIDTH, NUM_CLASSES)
 
         def forward(self, x):
             x = self.conv(x)
