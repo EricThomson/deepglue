@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 import pytest
 import torch
-from unittest.mock import patch
+from unittest.mock import patch, call
 
 from deepglue.plot_utils import plot_random_sample
 from deepglue.plot_utils import plot_random_category_sample
@@ -190,46 +190,38 @@ def test_create_embeddable_image(setup_test_dataset):
     assert image.size == (25, 25)
     assert image.mode == "RGB"
 
-import pandas as pd
-from bokeh.models import ColumnDataSource
 
-
-
-
-
-
-def test_plot_interactive_umap(mocker):
+@patch("deepglue.plot_utils.show") 
+@patch("deepglue.plot_utils.output_notebook")  
+def test_plot_interactive_umap(mock_output_notebook, mock_show, setup_test_dataset):
     """
-    Test the plot_interactive_umap function to ensure it processes inputs correctly
-    and configures the Bokeh figure as expected.
+    Test the plot_interactive_umap function using real images to validate
+    the complete workflow, including embeddable image generation.
     """
     # Mock inputs
     features_2d = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]]  # Example UMAP features
     labels = [0, 1, 0]  # Integer labels
-    image_paths = ["image1.jpg", "image2.jpg", "image3.jpg"]
+    image_paths = [
+        setup_test_dataset / "train" / "class0" / "image_0.png",
+        setup_test_dataset / "train" / "class0" / "image_1.png",
+        setup_test_dataset / "train" / "class1" / "image_0.png",
+    ]
     category_map = {"0": "Class A", "1": "Class B"}
 
-    # Mock `show` to prevent rendering
-    with patch("deepglue.plot_utils.show") as mock_show, \
-         patch("deepglue.plot_utils.output_notebook") as mock_output_notebook:
-        # Mock the embeddable image creation
-        mock_embeddable_image = mocker.patch(
-            "deepglue.plot_utils.create_embeddable_image",
-            side_effect=lambda path, size: f"data:image;base64,{path}"
-        )
+    # Call the function
+    plot_interactive_umap(features_2d, labels, image_paths, category_map)
 
-        # Call the function
-        plot_interactive_umap(features_2d, labels, image_paths, category_map)
+    # Validate the Base64 string for each image: this is the same test as test_create_embeddable_image
+    for path in image_paths:
+        base64_string = create_embeddable_image(path, size=(50, 50))
+        assert base64_string.startswith("data:image/jpeg;base64,")
+        encoded_data = base64_string.split(",")[1]
+        decoded_data = base64.b64decode(encoded_data)
+        image = Image.open(BytesIO(decoded_data))
+        assert image.size == (50, 50)
+        assert image.mode == "RGB"
 
-        # Validate `create_embeddable_image` was called for all paths
-        mock_embeddable_image.assert_has_calls([
-            mocker.call("image1.jpg", size=(50, 50)),
-            mocker.call("image2.jpg", size=(50, 50)),
-            mocker.call("image3.jpg", size=(50, 50)),
-        ])
-
-        # Assert that `output_notebook` was called once (for inline display)
-        mock_output_notebook.assert_called_once()
-
-        # Assert that `show` was called once
-        mock_show.assert_called_once()
+    # Following is specific for the bokeh function
+    # check that called function used output_notebook(), and called show()
+    mock_output_notebook.assert_called_once()
+    mock_show.assert_called_once()
