@@ -6,9 +6,8 @@ deep learning tasks
 """
 import base64
 from bokeh.io import curdoc
-from bokeh.models import BoxZoomTool, HoverTool
 from bokeh.models import ColumnDataSource, CategoricalColorMapper
-from bokeh.plotting import figure, show, output_notebook
+from bokeh.plotting import figure, show
 from bokeh.plotting import output_notebook, output_file, reset_output
 from io import BytesIO
 import logging

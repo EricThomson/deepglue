@@ -4,11 +4,7 @@ Fixtures, parameters, etc for deep glue tests
 """
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
 import torchvision.transforms.v2 as transforms
-import numpy as np
-from pathlib import Path
 from PIL import Image
 import pytest
 

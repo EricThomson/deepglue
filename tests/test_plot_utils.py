@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 import pytest
 import torch
-from unittest.mock import patch, call
+from unittest.mock import patch
 
 from deepglue.plot_utils import plot_random_sample
 from deepglue.plot_utils import plot_random_category_sample

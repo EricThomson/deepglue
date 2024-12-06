@@ -454,7 +454,7 @@ def extract_features(dataloader, feature_extractor, layer, device='cuda'):
 
     # extract features batch by batch
     for batch_num, (batch_images, batch_labels) in tqdm(enumerate(dataloader),
-                                                        desc=f"Extracting features",
+                                                        desc="Extracting features",
                                                         total=len(dataloader)):
         batch_images = batch_images.to(device)
         with torch.no_grad():
@@ -536,6 +536,6 @@ def prepare_ordered_data(data_path, transform, num_workers=0, batch_size=4, spli
                                 batch_size=batch_size,
                                 num_workers=num_workers,
                                 shuffle=False,  # do not change
-                                drop_last=False);  # do not change
+                                drop_last=False)  # do not change
     
     return image_paths, ordered_loader    

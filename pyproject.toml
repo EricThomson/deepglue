@@ -10,6 +10,7 @@ license = { text = "MIT" }
 readme = "readme.md"
 dependencies = [
     "torch", 
+    "torchvision",
     "numpy",
     "matplotlib",
     "scikit-learn",
