@@ -294,8 +294,8 @@ def test_prepare_ordered_data(setup_test_dataset):
 
 def test_extract_features(setup_test_dataset, simple_cnn_model):
     """
-    Test the extract_features function using an ordered DataLoader
-    created by prepare_ordered_data.
+    Test the extract_features function using an ordered
+    DataLoader created using prepare_ordered_data.
     """
     # Use the setup_test_dataset fixture to create a temporary dataset
     data_path = setup_test_dataset
@@ -321,9 +321,9 @@ def test_extract_features(setup_test_dataset, simple_cnn_model):
     # Check the labels shape
     assert extracted_labels.shape == (expected_image_count,), "Label shape mismatch."
 
-    # Confirm the the extracted labels match the dataset order
+    # Check that the the labels from feature extractor match those in ordered loader
     dataset_labels = [label for _, label in ordered_loader.dataset.samples]
-    assert (extracted_labels == np.array(dataset_labels)).all(), "Extracted labels mismatch."
+    assert (extracted_labels == np.array(dataset_labels)).all(), "Extracted labels from feature extractor don't match data loader."
 
     # Test non-existent layer throws proper exception
     with pytest.raises(KeyError, match="Layer 'invalid_layer' not found in the feature extractor outputs!"):
