@@ -7,14 +7,7 @@ Utilities for pytorch-based deep learning projects. Keeping the useful stuff tog
 - `pip install deepglue`
 - `import deepglue as dg`
 - Read the docs at https://deepglue.readthedocs.io/en/latest/ 
+- [Roadmap](https://github.com/EricThomson/deepglue/issues/1) :world_map:
 
-Deep Glue is a rapidly-changing work in progress (pre-alpha). 
-
- 
- ### Short-term plans
-- [ ] Interactive clustering visualization    
-- [ ] Feature space visualization.    
-- [ ] Training checkpoints     
-- [ ] Add simple tutorials    
 
 
