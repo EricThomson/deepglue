@@ -13,7 +13,7 @@ from deepglue.plot_utils import plot_random_category_sample
 from deepglue.plot_utils import convert_for_plotting  
 from deepglue.plot_utils import plot_prediction_grid
 from deepglue.plot_utils import create_embeddable_image
-from deepglue.plot_utils import plot_interactive_umap
+from deepglue.plot_utils import plot_interactive_projection
 
 
 @pytest.fixture
@@ -193,9 +193,9 @@ def test_create_embeddable_image(setup_test_dataset):
 
 @patch("deepglue.plot_utils.show") 
 @patch("deepglue.plot_utils.output_notebook")  
-def test_plot_interactive_umap(mock_output_notebook, mock_show, setup_test_dataset):
+def test_plot_interactive_projection(mock_output_notebook, mock_show, setup_test_dataset):
     """
-    Test the plot_interactive_umap function using real images to embed.
+    Test the plot_interactive_projection function using real images to embed.
     
     Validate the complete workflow, and basic bokeh function calls (show and output_notebook).
     """
@@ -210,7 +210,7 @@ def test_plot_interactive_umap(mock_output_notebook, mock_show, setup_test_datas
     category_map = {"0": "Class A", "1": "Class B"}
 
     # Call the function
-    plot_interactive_umap(features_2d, labels, image_paths, category_map)
+    plot_interactive_projection(features_2d, labels, image_paths, category_map)
 
     # Validate the Base64 string for each image: this is the same test as test_create_embeddable_image
     for path in image_paths:

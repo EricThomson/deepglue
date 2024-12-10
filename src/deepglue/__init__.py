@@ -22,7 +22,7 @@ from .plot_utils import plot_prediction_image
 from .plot_utils import plot_prediction_probs
 from .plot_utils import plot_prediction_grid
 from .plot_utils import create_embeddable_image
-from .plot_utils import plot_interactive_umap
+from .plot_utils import plot_interactive_projection
 
 from .file_utils import create_subdirs
 from .file_utils import load_images_for_model
@@ -50,7 +50,7 @@ __all__ = ["train_one_epoch",
            "plot_prediction_probs",
            "plot_prediction_grid",
            "create_embeddable_image",
-           "plot_interactive_umap",
+           "plot_interactive_projection",
 
            "create_subdirs", 
            "load_images_for_model",

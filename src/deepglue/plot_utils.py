@@ -549,33 +549,36 @@ def create_embeddable_image(image_path, size=(50, 50), quality=50):
     return f'data:image/jpeg;base64,{base64_encoded}'
 
 
-def plot_interactive_umap(features_2d, labels, image_paths, category_map,
+def plot_interactive_projection(features_2d, labels, image_paths, category_map,
                           title='UMAP Features', image_size=(50, 50), plot_size=800,
                           show_in_notebook=True):
     """
-    Create an interactive Bokeh plot for UMAP feature visualization.
+    Create an interactive Bokeh plot for any low-dimensional projection of features corresponding to images.
 
-    Given 2d projection of features from nn layer using umap, 
+    Create an interactive plot of a 2D projection of features extracted from images, such as those obtained using
+    dimensionality reduction techniques like UMAP, PCA, or t-SNE. When you hover over scatter point, it shows
+    the original image corresponding to the point in the 2d space.
 
     Parameters
     ----------
     features_2d : array-like
-        2D array of features obtained after UMAP dimensionality reduction (num_samples, 2).
+        2D array of features obtained after dimensionality reduction (num_samples, 2).
     labels : list
         List of integer labels for the data points (len num_samples).
     image_paths : list
         List of file paths to the images corresponding to the features (len num_samples).
     category_map : dict
-        Mapping of integer labels to category names.
+        A mapping of category indices (as strings) to their respective labels.
+        Example: {'0': 'cat', '1': 'dog'}.
     title : str, optional
-        Title of the plot. Defaults to 'UMAP Features'.
+        Title of the plot. Defaults to 'Feature Projection'.
     image_size : tuple, optional
-        Size of the images displayed in the tooltips (width, height). Defaults to (50, 50).
+        Size of the images shown in plot when you hover over points (width, height). Defaults to (50, 50).
     plot_size : int, optional
         Size of the plot (width and height in pixels). Defaults to 800.
     show_in_notebook : bool, optional
         If True, display the plot inline in a Jupyter Notebook.
-        If False, open the plot in a new browser tab (umap_plot.html). Defaults to True.
+        If False, open the plot in a new browser tab (projection_plot.html). Defaults to True.
 
     Returns
     -------
@@ -606,7 +609,7 @@ def plot_interactive_umap(features_2d, labels, image_paths, category_map,
         palette=hex_colors
     )
 
-    # Define the tooltip HTML
+    # Define the tooltip HTML used to show images on hover
     tooltips = """
     <div>
         <img src='@image' style='margin: 8px 0 0 0;'/>
@@ -637,7 +640,7 @@ def plot_interactive_umap(features_2d, labels, image_paths, category_map,
     if show_in_notebook:
         output_notebook()
     else:
-        output_file("umap_plot.html", title=title)
+        output_file("projection_plot.html", title=title)
 
     # Display the plot
     show(plot_figure)
