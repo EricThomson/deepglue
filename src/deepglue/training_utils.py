@@ -482,7 +482,8 @@ def extract_features(dataloader, feature_extractor, layer, device='cuda'):
 
 def prepare_ordered_data(data_path, transform, num_workers=0, batch_size=4, split_type='valid'):
     """
-    Prepare ordered data loader and correponding image path list for feature extraction pipeline.
+    Prepare ordered data loader and correponding image path list for feature extraction or 
+    other pipelines that require a full dataset in order.
 
     Generate a list of image paths and a DataLoader for a given dataset split.
     The image path and the DataLoader indices are guaranteed to match because both `shuffle`
