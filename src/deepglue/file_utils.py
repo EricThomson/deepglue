@@ -293,3 +293,43 @@ def count_category_by_split(data_path):
                 num_category_per_split[split_type][category] = num_images
 
     return num_category_per_split
+
+
+def create_project(projects_dir, project_name):
+    """
+    Creates a minimal project directory structure within the project parent directory:
+    
+        projects_dir/
+            project_name/
+                data/
+                models/
+
+    Parameters
+    ----------
+    projects_dir : str or Path
+        Path to the project parent directory. 
+    project_name : str
+        name of the project (must be a valid directory name: avoid spaces and other weird things)
+
+    Returns
+    -------
+    project_subdirs: list of Path
+        List of created subdirectories in project folder
+
+    TODO
+    ----
+    consider using pathvalidate to check project_name and throw error if it isn't reasonable
+    """
+    projects_dir = Path(projects_dir)
+    project_dir = projects_dir / project_name
+
+    try:
+        project_dir.mkdir(parents=True, exist_ok=False)
+        logging.info(f"Created project directory: {project_dir}")
+    except FileExistsError:
+        logging.warning(f"Project directory '{project_dir}' already exists.Skipping creation.")
+
+    subdirs = ["data", "models"]
+    project_subdirs = create_subdirs(project_dir, subdirs)
+
+    return project_subdirs
