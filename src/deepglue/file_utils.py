@@ -16,7 +16,7 @@ logging.getLogger(__name__)
 
 def create_subdirs(parent_dir, subdirs):
     """
-    Create subdirectories within a specified parent directory
+    Create subdirectories within a specified parent directory, unless they already exist.
 
     Parameters
     ---------
@@ -318,7 +318,7 @@ def create_project(projects_dir, project_name):
 
     TODO
     ----
-    consider using pathvalidate to check project_name and throw error if it isn't reasonable
+    consider using pathvalidate to throw error if project_name is invalid
     """
     projects_dir = Path(projects_dir)
     project_dir = projects_dir / project_name
@@ -327,7 +327,7 @@ def create_project(projects_dir, project_name):
         project_dir.mkdir(parents=True, exist_ok=False)
         logging.info(f"Created project directory: {project_dir}")
     except FileExistsError:
-        logging.warning(f"Project directory '{project_dir}' already exists.Skipping creation.")
+        logging.info(f"Project directory '{project_dir}' already exists. Skipping.")
 
     subdirs = ["data", "models"]
     project_subdirs = create_subdirs(project_dir, subdirs)

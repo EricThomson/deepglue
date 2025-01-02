@@ -8,6 +8,7 @@ from deepglue.file_utils import count_category_by_split
 from deepglue.file_utils import count_by_category
 from deepglue.file_utils import count_by_split
 from deepglue.file_utils import sample_random_images
+from deepglue.file_utils import create_project
 
 def test_create_subdirs(tmp_path):
     """"
@@ -164,3 +165,66 @@ def test_sample_random_images_exceeding_available(setup_test_dataset, caplog):
 
     assert len(sampled_paths) == 1  # Only 1 image exists in valid/class0
     assert "Returning all available images" in caplog.text
+
+def test_create_project(tmp_path):
+    """
+    Test the create_project function to ensure it creates the correct directory structure 
+    and that if it is run multiple times the same structure is created/maintained.
+    """
+    # Define test parameters
+    projects_dir = tmp_path / "projects"
+    project_name = "test_project"
+
+    # Call the function
+    project_subdirs = create_project(projects_dir, project_name)
+
+    # Define expected structure
+    project_dir = projects_dir / project_name
+    expected_subdirs = [project_dir / "data", project_dir / "models"]
+
+    # Check that the project directory exists
+    assert project_dir.exists(), f"Project directory {project_dir} was not created."
+
+    # Check that subdirectories exist
+    for subdir in expected_subdirs:
+        assert subdir.exists(), f"Subdirectory {subdir} was not created."
+
+    # Check that the returned paths match the expected subdirectories
+    assert project_subdirs == expected_subdirs, "Returned subdirectory paths do not match expected structure."
+
+    # Test idempotency (re-run should not fail or overwrite existing structure)
+    project_subdirs_again = create_project(projects_dir, project_name)
+    assert project_subdirs_again == expected_subdirs, "Re-running create_project should not alter the structure."
+
+
+def test_create_project_preserves_data(tmp_path):
+    """
+    Test that create_project does not overwrite existing data in the project directory.
+    Basically, a more detailed version of the idempotency test.
+    """
+    # Create a project directory with dummy data
+    projects_dir = tmp_path / "projects"
+    project_name = "test_project"
+    project_dir = projects_dir / project_name
+    create_project(projects_dir, project_name)
+
+    # Add dummy data to the 'data' directory
+    data_dir = project_dir / "data"
+    dummy_file = data_dir / "dummy.txt"
+    dummy_file.write_text("This is a test file.")
+
+    # Ensure the dummy file exists with the correct content
+    assert dummy_file.exists(), "Dummy file was not created."
+    assert dummy_file.read_text() == "This is a test file."
+
+    # Re-run the function
+    create_project(projects_dir, project_name)
+
+    # Verify the dummy file still exists and is unmodified
+    assert dummy_file.exists(), "Dummy file was overwritten or deleted."
+    assert dummy_file.read_text() == "This is a test file.", "Dummy file content was modified."
+
+    # Verify the structure is still correct
+    expected_subdirs = [project_dir / "data", project_dir / "models"]
+    for subdir in expected_subdirs:
+        assert subdir.exists(), f"Subdirectory {subdir} was not preserved."
