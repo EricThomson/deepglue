@@ -313,10 +313,12 @@ def create_project(projects_dir, project_name):
 
     Returns
     -------
+    project_dir : Path
+        Path to the project directory that was created in projects_dir
     data_dir : Path
-        Path to the data directory in the project folder
+        Path to the data directory in project_dir
     models_dir : Path
-        Path to the models directory in the project folder
+        Path to the models directory in the project_dir
 
     TODO
     ----
@@ -335,4 +337,4 @@ def create_project(projects_dir, project_name):
     project_subdirs = create_subdirs(project_dir, subdirs)
     data_dir, models_dir = project_subdirs[0], project_subdirs[1]
 
-    return data_dir, models_dir
+    return project_dir, data_dir, models_dir

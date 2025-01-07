@@ -176,40 +176,42 @@ def test_create_project(tmp_path):
     project_name = "test_project"
 
     # Call the function
-    data_dir, models_dir = create_project(projects_dir, project_name)
+    project_dir, data_dir, models_dir = create_project(projects_dir, project_name)
 
     # Define expected structure
-    project_dir = projects_dir / project_name
+    expected_project_dir = projects_dir / project_name
     expected_data_dir = project_dir / "data"
     expected_models_dir = project_dir / "models"
 
-    # Check that the project directory exists
+    # Check that the project directory and children exist
     assert project_dir.exists(), f"Project directory {project_dir} was not created."
-
-    # Check that subdirectories exist
     assert data_dir.exists(), f"Data directory {data_dir} was not created."
     assert models_dir.exists(), f"Models directory {models_dir} was not created."
 
     # Check that returned paths match the expected subdirectories
+    assert project_dir == expected_project_dir, "Returned project_dir does not match the expected path."
     assert data_dir == expected_data_dir, "Returned data_dir does not match the expected path."
     assert models_dir == expected_models_dir, "Returned models_dir does not match the expected path."
 
     # Ensure re-run doesn't fail or overwrite existing structure
-    data_dir_again, models_dir_again = create_project(projects_dir, project_name)
+    project_dir_again, data_dir_again, models_dir_again = create_project(projects_dir, project_name)
+    assert project_dir_again == expected_project_dir, "Re-running create_project altered project_dir structure."
     assert data_dir_again == expected_data_dir, "Re-running create_project altered data_dir structure."
     assert models_dir_again == expected_models_dir, "Re-running create_project altered models_dir structure."
 
 
 def test_create_project_preserves_data(tmp_path):
     """
-    Test that create_project does not overwrite existing data in the project directory.
-    Basically, a more detailed version of the idempotency test.
+    Make sure create_project does not overwrite existing data in a project directory.
+    Basically, a more stringent overwrite test than in test_create_project. 
+
+    TODO: 
+        test that it not only keeps the files, but preserves data (e.g., doesn't create empty file). 
     """
     # Create a project directory with dummy data
     projects_dir = tmp_path / "projects"
     project_name = "test_project"
-    project_dir = projects_dir / project_name
-    data_dir, models_dir = create_project(projects_dir, project_name)
+    project_dir, data_dir, models_dir = create_project(projects_dir, project_name)
 
     # Add dummy data to the 'data' directory
     data_dir = project_dir / "data"
@@ -221,7 +223,7 @@ def test_create_project_preserves_data(tmp_path):
     assert dummy_file.read_text() == "This is a test file."
 
     # Re-run the function
-    data_dir_again, models_dir_again = create_project(projects_dir, project_name)
+    project_dir_again, data_dir_again, models_dir_again = create_project(projects_dir, project_name)
 
     # Verify the dummy file still exists and is unmodified
     assert dummy_file.exists(), "Dummy file was overwritten or deleted."
@@ -230,5 +232,6 @@ def test_create_project_preserves_data(tmp_path):
     # Verify the structure is maintained
     assert data_dir.exists(), "Data directory was not preserved."
     assert models_dir.exists(), "Models directory was not preserved."
+    assert project_dir_again == project_dir, "Project directory path was altered on re-run."
     assert data_dir_again == data_dir, "Data directory path was altered on re-run."
     assert models_dir_again == models_dir, "Models directory path was altered on re-run."
