@@ -348,6 +348,8 @@ def predict_batch(model, image_batch, device='cuda'):
     model = model.to(device)
     image_batch = image_batch.to(device)
     
+    logging.info(f"Generating predictions for {image_batch.shape[0]} samples")
+
     model.eval()
     with torch.no_grad():
         logits = model(image_batch)

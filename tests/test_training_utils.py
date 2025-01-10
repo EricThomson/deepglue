@@ -257,16 +257,16 @@ def test_predict_batch(simple_cnn_model, dummy_image_data):
     batch_size, num_classes = images.shape[0], NUM_CLASSES
 
     # Run the predict_batch function
-    probability_matrix = predict_batch(model, images, device='cpu')
+    probabilities = predict_batch(model, images, device='cpu')
 
     # Assertions 
-    assert isinstance(probability_matrix, torch.Tensor), "Output should be a torch.Tensor."
-    assert probability_matrix.shape == (batch_size, num_classes), \
-        f"Expected shape {(batch_size, num_classes)}, but got {probability_matrix.shape}."
-    assert torch.all(probability_matrix >= 0) and torch.all(probability_matrix <= 1), \
+    assert isinstance(probabilities, torch.Tensor), "Output should be a torch.Tensor."
+    assert probabilities.shape == (batch_size, num_classes), \
+        f"Expected shape {(batch_size, num_classes)}, but got {probabilities.shape}."
+    assert torch.all(probabilities >= 0) and torch.all(probabilities <= 1), \
         "All probabilities should be in the range [0, 1]."
-    assert torch.allclose(probability_matrix.sum(dim=1), torch.tensor(1.0)), \
-        "Each row of probability_matrix should sum to 1."
+    assert torch.allclose(probabilities.sum(dim=1), torch.tensor(1.0)), \
+        "Each row of probabilities should sum to 1."
     
 
 def test_prepare_ordered_data(setup_test_dataset):
