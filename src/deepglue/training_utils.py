@@ -266,7 +266,7 @@ def predict_all(model, data_loader, device='cuda'):
     """
     Make predictions for all batches of data in data loader.
 
-    Use the model to generate predictions for all all batches from the provided data loader. 
+    Use the model to generate predictions for all batches from the provided data loader. 
     It returns the predicted class labels, true labels, class probabilities for each sample. 
 
     Parameters
@@ -328,7 +328,6 @@ def predict_batch(model, image_batch, device='cuda'):
     device : str, optional
         The device ('cpu' or 'cuda') on which the model and data are placed.
         Defaults to cuda
-
 
     Returns
     -------
