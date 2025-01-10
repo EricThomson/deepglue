@@ -206,8 +206,8 @@ def test_predict_all(simple_cnn_model, dummy_image_data):
     Test the predict_all function to ensure it returns the expected output shapes and types.
     
     This test checks that:
-    - all_preds and all_labels have the same number of samples as provided by the data loader.
-    - probability_matrix has the shape (num_samples, num_classes) and contains valid probabilities.
+    - all_predictions and all_labels have the same number of samples as provided by the data loader.
+    - all_probabilities has the shape (num_samples, num_classes) and contains valid probabilities.
     """
 
     # Unpack the dummy data
@@ -219,22 +219,22 @@ def test_predict_all(simple_cnn_model, dummy_image_data):
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE) # small batch size for testing purposes
 
     # Act
-    all_preds, all_labels, probability_matrix = predict_all(model, dataloader, device='cpu')
+    all_predictions, all_labels, all_probabilities = predict_all(model, dataloader, device='cpu')
 
     # Assert
-    assert isinstance(all_preds, torch.Tensor), "all_preds should be a torch.Tensor"
+    assert isinstance(all_predictions, torch.Tensor), "all_preds should be a torch.Tensor"
     assert isinstance(all_labels, torch.Tensor), "all_labels should be a torch.Tensor"
-    assert isinstance(probability_matrix, torch.Tensor), "probability_matrix should be a torch.Tensor"
+    assert isinstance(all_probabilities, torch.Tensor), "probability_matrix should be a torch.Tensor"
     
-    assert all_preds.shape == (NUM_SAMPLES,), f"Expected shape {(NUM_SAMPLES,)} for all_preds, got {all_preds.shape}"
+    assert all_predictions.shape == (NUM_SAMPLES,), f"Expected shape {(NUM_SAMPLES,)} for all_predictions, got {all_preds.shape}"
     assert all_labels.shape == (NUM_SAMPLES,), f"Expected shape {(NUM_SAMPLES,)} for all_labels, got {all_labels.shape}"
-    assert probability_matrix.shape == (NUM_SAMPLES, NUM_CLASSES), \
-        f"Expected shape {(NUM_SAMPLES, NUM_CLASSES)} for probability_matrix, got {probability_matrix.shape}"
+    assert all_probabilities.shape == (NUM_SAMPLES, NUM_CLASSES), \
+        f"Expected shape {(NUM_SAMPLES, NUM_CLASSES)} for all_probabilities, got {all_probabilities.shape}"
     
     # Check if probabilities are valid (between 0 and 1)
-    assert torch.all((probability_matrix >= 0) & (probability_matrix <= 1)), "Probabilities should be between 0 and 1"
-    assert torch.allclose(probability_matrix.sum(dim=1), torch.ones_like(probability_matrix.sum(dim=1))), \
-        "Each row in probability_matrix should sum to 1"
+    assert torch.all((all_probabilities >= 0) & (all_probabilities <= 1)), "Probabilities should be between 0 and 1"
+    assert torch.allclose(all_probabilities.sum(dim=1), torch.ones_like(all_probabilities.sum(dim=1))), \
+        "Each row in all_probabilities should sum to 1"
     
 
 def test_predict_batch(simple_cnn_model, dummy_image_data):

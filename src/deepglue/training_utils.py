@@ -281,18 +281,18 @@ def predict_all(model, data_loader, device='cuda'):
 
     Returns
     -------
-    all_preds : torch.Tensor
+    all_predictions : torch.Tensor
         An array of predicted labels for each sample in the dataset, with shape (num_samples,)
     all_labels : torch.Tensor
         An array of true labels for each sample in the dataset, with shape (num_samples,)
-    probability_matrix: torch.Tensor
+    all_probabilities: torch.Tensor
         A 2D array of shape (num_samples, num_categories) containing the softmax-normalized
         probabilities for each category: each row represents the predicted probability 
         distribution for a single sample.
     """
-    all_preds = []
+    all_predictions = []
     all_labels = []
-    all_probs = []
+    all_probabilities = []
     num_batches = len(data_loader)
     model.to(device)
     
@@ -302,17 +302,17 @@ def predict_all(model, data_loader, device='cuda'):
             images, labels = images.to(device), labels.to(device)
             logits = model(images) # logits
             _, preds = torch.max(logits, 1)
-            all_preds.append(preds.cpu())
+            all_predictions.append(preds.cpu())
             all_labels.append(labels.cpu())
 
             # convert logits to probs in batch 
             probabilities = softmax(logits, dim=1)  
-            all_probs.append(probabilities.cpu())
+            all_probabilities.append(probabilities.cpu())
             
-    all_preds = torch.cat(all_preds, dim=0)
+    all_predictions = torch.cat(all_predictions, dim=0)
     all_labels = torch.cat(all_labels, dim=0)
-    probability_matrix = torch.cat(all_probs, dim=0)
-    return all_preds, all_labels, probability_matrix
+    all_probabilities = torch.cat(all_probabilities, dim=0)
+    return all_predictions, all_labels, all_probabilities
 
 
 def predict_batch(model, image_batch, device='cuda'):
@@ -332,7 +332,7 @@ def predict_batch(model, image_batch, device='cuda'):
 
     Returns
     -------
-    probability_matrix: torch.Tensor
+    probabilities: torch.Tensor
         Predicted probabilities for each image in the batch.
         Shape is (batch_size x num_categories)
 
@@ -340,7 +340,7 @@ def predict_batch(model, image_batch, device='cuda'):
     ----
     - Change name to predict_sample because this isn't a batch in the conventional sense coming
     from a data loader, keep the language consistent across the package. 
-    - Have it return predicted 'labels'
+    - Have it return predicted 'labels' and actual labels like predict_all does.
     """
     if device not in ['cuda', 'cpu']:
         raise ValueError(f"Invalid device: {device}. Use 'cuda' or 'cpu'.")
@@ -353,8 +353,8 @@ def predict_batch(model, image_batch, device='cuda'):
     model.eval()
     with torch.no_grad():
         logits = model(image_batch)
-        probability_matrix = softmax(logits, dim=1)
-    return probability_matrix
+        probabilities = softmax(logits, dim=1)
+    return probabilities
 
 
 def accuracy(outputs, targets, topk=(1,)):
