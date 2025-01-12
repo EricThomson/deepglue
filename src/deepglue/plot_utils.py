@@ -550,14 +550,15 @@ def create_embeddable_image(image_path, size=(50, 50), quality=50):
 
 
 def plot_interactive_projection(features_2d, labels, image_paths, category_map,
-                          title='UMAP Features', image_size=(50, 50), plot_size=800,
+                          predictions=None, title='Feature Projection', image_size=(50, 50), plot_size=800,
                           show_in_notebook=True):
     """
     Create an interactive Bokeh plot for any low-dimensional projection of features corresponding to images.
 
     Create an interactive plot of a 2D projection of features extracted from images, such as those obtained using
     dimensionality reduction techniques like UMAP, PCA, or t-SNE. When you hover over scatter point, it shows
-    the original image corresponding to the point in the 2d space.
+    the original image corresponding to the point in the 2d space. If you provide predictions, it will show the
+    incorrect predictions as an X. 
 
     Parameters
     ----------
@@ -570,6 +571,8 @@ def plot_interactive_projection(features_2d, labels, image_paths, category_map,
     category_map : dict
         A mapping of category indices (as strings) to their respective labels.
         Example: {'0': 'cat', '1': 'dog'}.
+    predictions : array-like, optional
+        Predicted labels for the data points (len num_samples). Defaults to None.
     title : str, optional
         Title of the plot. Defaults to 'Feature Projection'.
     image_size : tuple, optional
@@ -587,27 +590,44 @@ def plot_interactive_projection(features_2d, labels, image_paths, category_map,
     """
     reset_output() # just so you don't update things outside of the current window
     
-    class_names = list(category_map.values())
+    category_names = list(category_map.values())
+    num_categories = len(category_names)
 
     # Prepare the DataFrame
     df = pd.DataFrame(features_2d, columns=('x', 'y'))
     df['category'] = [category_map[str(label)] for label in labels]
     df['image'] = list(map(lambda path: create_embeddable_image(path, size=image_size), image_paths))
+    df.insert(0, 'index', df.index) # index column for hover
 
-    df.insert(0, 'index', df.index)
+    """
+    Handling the logic for correct/incorrect predictions
+    - If predictions were provided
+        - add a 'correct' column to the df
+        - get rows of correct and incorrect predictions in the df
+        - create separate ColumnDataSources for correct and incorrect predictions for plotting
+    - If no predictions provided, just use a single ColumnDataSource for all points 
+    """
+    if predictions is not None:
+        if predictions is not None:
+            # Convert predictions to a Python list if they are a PyTorch tensor
+            if isinstance(predictions, torch.Tensor):
+                predictions = predictions.tolist()
 
-    # Create a ColumnDataSource from the DataFrame
-    datasource = ColumnDataSource(df)
+        df['correct'] = [prediction == label for prediction, label in zip(predictions, labels)]
+        df_correct_inds = df[df['correct']==True]
+        df_incorrect_inds = df[df['correct']==False]
+        datasource_correct = ColumnDataSource(df_correct_inds)
+        datasource_incorrect = ColumnDataSource(df_incorrect_inds)
+    else:
+        datasource_all = ColumnDataSource(df)
 
-    # Set up color mapping with consistent colors as in the static plot
-    cmap = plt.cm.Spectral
-    colors = [cmap(i / len(class_names)) for i in range(len(class_names))]
+
+    # Set up color mapping 
+    cmap = plt.cm.tab10
+    colors = [cmap(i / num_categories) for i in range(num_categories)]
     hex_colors = [rgb2hex(c) for c in colors]
-
-    color_mapping = CategoricalColorMapper(
-        factors=class_names,
-        palette=hex_colors
-    )
+    color_mapping = CategoricalColorMapper(factors=category_names,
+                                           palette=hex_colors)
 
     # Define the tooltip HTML used to show images on hover
     tooltips = """
@@ -624,14 +644,36 @@ def plot_interactive_projection(features_2d, labels, image_paths, category_map,
                          tools=('pan, box_zoom, wheel_zoom, reset'),
                          tooltips=tooltips)
 
-    # Add scatter points to the plot
-    plot_figure.scatter('x', 'y',
-                         source=datasource,
-                         color=dict(field='category', 
-                                    transform=color_mapping),
-                         line_alpha=0.6,
-                         fill_alpha=0.6,
-                         size=6)
+    # Add scatter points based on whether predictions are provided
+    if predictions is not None:
+        # Scatter for correct points (circles)
+        plot_figure.scatter('x', 'y',
+                            source=datasource_correct,
+                            color=dict(field='category', transform=color_mapping),
+                            marker='circle',
+                            size=6,
+                            line_alpha=0.6,
+                            fill_alpha=0.6,
+                            legend_label="Correct")
+
+        # Scatter for incorrect points (X's)
+        plot_figure.scatter('x', 'y',
+                            source=datasource_incorrect,
+                            color=dict(field='category', transform=color_mapping),
+                            marker='x',
+                            size=8,
+                            line_alpha=0.6,
+                            fill_alpha=0.6,
+                            legend_label="Incorrect")
+    else:
+        # Scatter for all points if no predictions
+        plot_figure.scatter('x', 'y',
+                            source=datasource_all,
+                            color=dict(field='category', transform=color_mapping),
+                            marker='circle',
+                            size=6,
+                            line_alpha=0.6,
+                            fill_alpha=0.6)
 
     # Apply the dark minimal theme
     curdoc().theme = 'dark_minimal'
