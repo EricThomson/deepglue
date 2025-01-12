@@ -191,13 +191,13 @@ def test_create_embeddable_image(setup_test_dataset):
     assert image.mode == "RGB"
 
 
-@patch("deepglue.plot_utils.show") 
-@patch("deepglue.plot_utils.output_notebook")  
-def test_plot_interactive_projection(mock_output_notebook, mock_show, setup_test_dataset):
+@patch("deepglue.plot_utils.show")
+@patch("deepglue.plot_utils.output_notebook")
+def test_plot_interactive_projection_no_predictions(mock_output_notebook, mock_show, setup_test_dataset):
     """
-    Test the plot_interactive_projection function using real images to embed.
+    Test the plot_interactive_projection function without predictions sent to function.
     
-    Validate the complete workflow, and basic bokeh function calls (show and output_notebook).
+    Validate the workflow, and basic bokeh function calls (show and output_notebook).
     """
     # Mock inputs
     features_2d = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]]  # Example UMAP features
@@ -213,6 +213,7 @@ def test_plot_interactive_projection(mock_output_notebook, mock_show, setup_test
     plot_interactive_projection(features_2d, labels, image_paths, category_map)
 
     # Validate the Base64 string for each image: this is the same test as test_create_embeddable_image
+    # TODO: consider getting rid of this redundant test
     for path in image_paths:
         base64_string = create_embeddable_image(path, size=(50, 50))
         assert base64_string.startswith("data:image/jpeg;base64,")
@@ -224,5 +225,36 @@ def test_plot_interactive_projection(mock_output_notebook, mock_show, setup_test
 
     # Following is specific for the bokeh function
     # check that called function used output_notebook(), and called show()
+    mock_output_notebook.assert_called_once()
+    mock_show.assert_called_once()
+
+
+@patch("deepglue.plot_utils.show")
+@patch("deepglue.plot_utils.output_notebook")
+def test_plot_interactive_projection_with_predictions(mock_output_notebook, mock_show, setup_test_dataset):
+    """
+    Test the plot_interactive_projection function with predictions.
+
+    Validate correct/incorrect classification and Bokeh function calls.
+    """
+    # Mock inputs
+    features_2d = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]]  # Example UMAP features
+    labels = [0, 1, 0]  # Ground truth labels
+    predictions = [0, 1, 1]  # Model predictions
+    image_paths = [
+        setup_test_dataset / "train" / "class0" / "image_0.png",
+        setup_test_dataset / "train" / "class0" / "image_1.png",
+        setup_test_dataset / "train" / "class1" / "image_0.png",
+    ]
+    category_map = {"0": "Class A", "1": "Class B"}
+
+    # Call the function with predictions
+    plot_interactive_projection(features_2d, labels, image_paths, category_map, predictions=predictions)
+
+    # Validate correct/incorrect splitting logic
+    correct = [prediction == label for prediction, label in zip(predictions, labels)]
+    assert correct == [True, True, False], "Correctness array does not match expected values."
+
+    # Validate that output_notebook() and show() were called
     mock_output_notebook.assert_called_once()
     mock_show.assert_called_once()
