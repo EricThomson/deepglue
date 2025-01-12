@@ -621,7 +621,6 @@ def plot_interactive_projection(features_2d, labels, image_paths, category_map,
     else:
         datasource_all = ColumnDataSource(df)
 
-
     # Set up color mapping 
     cmap = plt.cm.tab10
     colors = [cmap(i / num_categories) for i in range(num_categories)]
