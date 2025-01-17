@@ -1,0 +1,16 @@
+# installation requirements for fashion mnist environmnet for classification
+torch
+torchvision
+numpy 
+matplotlib 
+scikit-learn
+scikit-image
+scipy
+pandas 
+pillow
+umap-learn
+jupyterlab
+ipywidgets
+tqdm
+pathlib
+deepglue
