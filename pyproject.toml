@@ -53,6 +53,9 @@ dev = [
     "pydocstyle",                    # Docstrings linter
 ]
 
+[tool.ruff]
+ignore = ["E703"] # semicolon at end of line
+
 [tool.hatch.build.targets.wheel]
 include = ["src/deepglue/**"]
 
