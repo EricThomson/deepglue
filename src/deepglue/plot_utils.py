@@ -83,7 +83,7 @@ def plot_random_sample(data_path, category_map, split_type='train', num_to_plot=
     for ax, sample_path, sample_category in zip(axes.flat, sample_paths, sample_categories):
         # Load the image
         img = Image.open(sample_path)
-        ax.imshow(img)
+        ax.imshow(img, cmap="gray")
         ax.set_title(sample_category)
         ax.axis('off') 
     
@@ -243,7 +243,7 @@ def plot_transformed(original_image, transform, cmap=None, num_to_plot=4):
             image = original_image
         else:
             image = convert_for_plotting(transform(original_image))  # convert for matplotlib
-        ax.imshow(image)
+        ax.imshow(image, cmap="gray")
         ax.axis('off')
         if index == 0:
             ax.set_title('Original')
@@ -341,7 +341,7 @@ def plot_prediction_image(tensor, probabilities, category_map,
         fig = plt.gcf()
 
     # Plot the image
-    ax.imshow(image)
+    ax.imshow(image, cmap="gray")
     ax.set(xticks=[], yticks=[])
     ax.set_xlabel(f"Est: {predicted_label} ({top_prob.item():.2f})")  
     if true_label:
