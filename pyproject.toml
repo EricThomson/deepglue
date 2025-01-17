@@ -53,7 +53,7 @@ dev = [
     "pydocstyle",                    # Docstrings linter
 ]
 
-[tool.ruff]
+[tool.ruff.lint]
 ignore = ["E703"] # semicolon at end of line
 
 [tool.hatch.build.targets.wheel]
