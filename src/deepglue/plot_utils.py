@@ -615,7 +615,7 @@ def plot_interactive_projection(features_2d, labels, image_paths, category_map,
 
         df['correct'] = [prediction == label for prediction, label in zip(predictions, labels)]
         df_correct_inds = df[df['correct']]
-        df_incorrect_inds = df[df['correct']]
+        df_incorrect_inds = df[~df['correct']]
         datasource_correct = ColumnDataSource(df_correct_inds)
         datasource_incorrect = ColumnDataSource(df_incorrect_inds)
     else:
