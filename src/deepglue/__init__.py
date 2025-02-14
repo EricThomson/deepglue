@@ -2,7 +2,7 @@
 deep glue: A utility package for creating deep learning projects with pytorch.
 """
 
-__version__ = "0.1.12"  
+__version__ = "0.1.13"  
 
 from .training_utils import train_one_epoch
 from .training_utils import validate_one_epoch
