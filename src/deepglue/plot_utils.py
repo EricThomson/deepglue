@@ -550,7 +550,8 @@ def create_embeddable_image(image_path, size=(50, 50), quality=50):
 
 
 def plot_interactive_projection(features_2d, labels, image_paths, category_map,
-                                predictions=None, title='Feature Projection', image_size=(50, 50), plot_size=800,
+                                predictions=None, title='Feature Projection', 
+                                image_size=(50, 50), plot_size=800, legend_location=None,
                                 show_in_notebook=True):
     """
     Create an interactive Bokeh plot for any low-dimensional projection of features corresponding to images.
@@ -676,10 +677,10 @@ def plot_interactive_projection(features_2d, labels, image_paths, category_map,
 
 
     # change legend location, change theme to dark 
-    plot_figure.legend.location = "top_left"
+    if legend_location is not None:
+        plot_figure.legend.location = legend_location
     curdoc().theme = 'dark_minimal'
 
-    logging.warning("Hi")
 
     # Set output target based on the `show_in_notebook` parameter
     if show_in_notebook:
