@@ -580,6 +580,9 @@ def plot_interactive_projection(features_2d, labels, image_paths, category_map,
         Size of the images shown in plot when you hover over points (width, height). Defaults to (50, 50).
     plot_size : int, optional
         Size of the plot (width and height in pixels). Defaults to 800.
+    legend_location: str, optional
+        Location of the legend. Defaults to None which puts it in default location. 
+        Options include 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'top', 'bottom', 'left', 'right','center'
     show_in_notebook : bool, optional
         If True, display the plot inline in a Jupyter Notebook.
         If False, open the plot in a new browser tab (projection_plot.html). Defaults to True.

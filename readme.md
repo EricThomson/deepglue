@@ -4,6 +4,10 @@
 
 Utilities for pytorch-based deep learning projects. Keeping the useful stuff together in one place.
 
+The basic philosophy of deepglue is to provide simple functionality to make deep learning projects easier. There are lots of functions we tend to replicate across different ML projects, and deepglue puts them together in one place. The guiding principle is that the code should be readable and easy to use. 
+
+A second guiding principle is to not reinvent the wheel: if there is a standard way to do something using another tool, we will just show how to use that tool in a demo rather.
+
 - `pip install deepglue`
 - `import deepglue as dg`
 - Read the docs at https://deepglue.readthedocs.io/en/latest/ 
