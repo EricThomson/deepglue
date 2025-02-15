@@ -43,8 +43,9 @@ Below is a brief summary of how to make a pull request (PR) to deepglue. Please 
    ```
    git commit -m "Description of my changes"
    ```
-6. **Run tests**: Make sure code passes tests and linting.
+6. **Test and Lint**: Make sure code passes all tests and linting.
     ```
+    pytest tests/ -v
     ruff check .
     ```
 7. **Push Your Changes**: Push your changes to your fork.
