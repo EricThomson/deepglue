@@ -70,7 +70,7 @@ The specific coding conventions we follow:
 
 If unsure, just do your best to match the existing style, and we'll help fine-tune things in the PR! 
 
-deepglue functions are currently divided into four utility modules (plotting, file, training, and runtime utilities). If you need help deciding where your code should go, please open an issue and reach out!
+deepglue functions are currently divided into four utility modules (plotting, file, training, and runtime utilities). If you need help deciding where your code should go, feel free to ask. It's not always obvious.
 
 ## Code of Conduct
 
