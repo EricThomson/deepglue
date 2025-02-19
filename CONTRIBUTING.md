@@ -17,7 +17,7 @@ Partipate in the community, either in the issue queue or in discussion threads. 
 ### Documentation :books:
 Our documentation is always a work in progress. Any help keeping it clear and up-to-date is appreciated. This includes the demo notebooks.
 
-### Code :binary:
+### Code :computer:
 - **New features**: if you have an idea for a new feature, please let us know! If you'd like to contribute the feature, we'll help you do it. Otherwise, we'll add it to the [roadmap](https://github.com/EricThomson/deepglue/issues/1)! :world_map:
 - **Code reviews**: if you have suggestions for how we can improve our code, please open a pull request and provide feedback! 
 - **Bug fixes**: If you find a problem, a bug, please let us know by opening an issue or a bug fix (see below on how to do a pull request). :bug:
