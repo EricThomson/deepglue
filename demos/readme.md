@@ -6,7 +6,7 @@ Home page for deepglue: https://github.com/EricThomson/deepglue
 - **fashion_mnist**: the base demo, which shows how to use deepglue to set up a classification project, train/evaluate a network, and visualize how features cluster in its hidden layers.  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/EricThomson/deepglue/blob/main/demos/fashion_mnist/fashion_demo.ipynb)
 
 ## To run in Colab
-Click on the `Open in Colab` button next to the demo. Since demos will run quite a bit slower if you don't have GPU enabled, go to `Runtime` -> `Change runtime type` to see if you can enable an environment with a `GPU`. With the free version of Colab, you aren't guaranteed GPU access: Colab Pro makes GPU access much more reliable, but it does cost $10 a month. 
+Click on the `Open in Colab` button next to the demo. To enable GPU, go to `Runtime` -> `Change runtime type` to see if you can enable GPU. With the free version of Colab, you aren't guaranteed GPU access: Colab Pro makes GPU access much more reliable, though it is $10/month. 
 
 ## To run locally
 Running demos locally is typically much faster and gives more flexiblity than running in Colab. To run locally:
