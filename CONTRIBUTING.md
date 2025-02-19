@@ -56,19 +56,21 @@ Below is a brief summary of how to make a pull request (PR) to deepglue. Please 
 
 
 ## Coding conventions :microscope:
-For people who are making code contributions, there are a few conventions we try to follow, and a couple of guiding principles. The guiding principles are:
+When updating the code base, there are a few conventions we try to follow. The guiding principles are:
 
-1. We try to write code that is simple and easy to read. If this means sacrificing a few milliseconds at runtime, that's fine. Clear and easy-to-understand documentation is part of good code.
+1. We try to write code (and documentation) that is simple and easy to read. If improving clarity means sacrificing a few milliseconds at runtime, that's fine. 
 2. Don't reinvent wheels: if there is a useful function from another library (such as scikit learn's `classification_report()`) that is typically used to do something, let's show people how to use that tool in a demo. This is preferable to building a thin wrapper around the function. 
 
-The key coding conventions we follow:
+The specific coding conventions we follow:
 
 1. **Docstrings**: We use NumPy-style docstrings.
 2. **Linting**: We use `ruff` for linting (`ruff check .`).
-3. **Testing**: All changes should pass tests (`pytest tests/ -v`).
+3. **Testing**: All changes should pass tests in `pytest tests/ -v`.
 4. **Imports**: Follow standard conventions (e.g., `import numpy as np`).
 
-If unsure, just do your best to match the existing style, and we'll help fine-tune things in the PR!
+If unsure, just do your best to match the existing style, and we'll help fine-tune things in the PR! 
+
+deepglue functions are currently divided into four utility modules (plotting, file, training, and runtime utilities). If you need help deciding where your code should go, please reach out!
 
 ## Code of Conduct
 
