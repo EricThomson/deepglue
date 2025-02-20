@@ -1,4 +1,11 @@
 # deepglue Code of Conduct
+**Note** deepglue is currently a personal side project of one developer, but since I would like contributions and feedback (see [CONTRIBUTING.md](CONTRIBUTING.md)), I think it's important to have a CoC. 
+
+The body of this Code of Conduct is adapted from the Contributor Covenant
+version 2.1, available at
+[https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][v2.1].
+
+Briefly: if there are ever any conduct-related issues with deepglue (as discussed below in the next two sections), please feel free to reach out to me at thomson dot eric (google email). If you are not comfortable emailing me, you can bring up the problem in a [discussion thread](https://github.com/EricThomson/deepglue/discussions) at deepglue. I will do my best to address the problem in a fair and timely fashion, and I will respect your privacy. 
 
 ## Our Pledge
 
@@ -42,17 +49,12 @@ This Code of Conduct applies within all deepglue-related spaces, including its G
 ## Reporting and Enforcement Guidelines
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the project's core developer (ethomson.eric@gmail.com). All complaints will be reviewed and investigated promptly and fairly.
-
-Reports will be acknowledged within two business days, and we aim to resolve issues within 14 business days whenever possible. Resolutions may include warnings, temporary bans, or permanent bans, depending on the severity of the behavior.
+reported to the project's core developer. All complaints will be reviewed and investigated promptly and fairly.
 
 As the project grows, and additional maintainers join, those who fail to  uphold or enforce the Code of Conduct in good faith may face temporary or permanent consequences as determined by a majority of the project's core developers.
 
-All maintainers are obligated to respect the privacy and security of the reporter of any incident.
+I will respect the privacy and security of the reporter of any incident.
 
-## Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant][homepage],
-version 2.1, available at
-[https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][v2.1].
+
 
