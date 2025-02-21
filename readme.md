@@ -4,7 +4,7 @@
 
 Utilities for pytorch-based deep learning projects. Keeping the useful stuff together in one place.
 
-The philosophy of deepglue is to provide simple functionality that makes deep learning projects easier. There are lots of functions we tend to replicate across different projects, and deepglue puts them together in one place. Unlike 
+The philosophy of deepglue is to provide simple functionality that makes deep learning projects easier. There are lots of functions we tend to replicate across different projects, and deepglue puts them together in one place. 
 
 ### Version: Pre-Alpha :construction: 
 deepglue is quickly evolving. If something breaks or seems awry, please ask: open an issue or discussion thread because you probably aren't wrong. 
