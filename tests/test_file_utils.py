@@ -8,6 +8,7 @@ from deepglue.file_utils import count_category_by_split
 from deepglue.file_utils import count_by_category
 from deepglue.file_utils import count_by_split
 from deepglue.file_utils import sample_random_images
+from deepglue.file_utils import split_dataset
 from deepglue.file_utils import create_project
 
 def test_create_subdirs(tmp_path):
@@ -166,6 +167,123 @@ def test_sample_random_images_exceeding_available(setup_test_dataset, caplog):
     assert len(sampled_paths) == 1  # Only 1 image exists in valid/class0
     assert "Returning all available images" in caplog.text
 
+
+def test_split_dataset(tmp_path):
+    """
+    Happy path test for split_dataset function
+    Raw data will be in raw_data. Splits will be put into split_data with 60/20/20 split
+    """
+    # Create initial raw data directories
+    raw_data = tmp_path / "raw_data"
+    cat_dir = raw_data / "cat"
+    dog_dir = raw_data / "dog"
+    cat_dir.mkdir(parents=True)
+    dog_dir.mkdir()
+
+    # Create initial raw data files and make a record of their filenames
+    all_files_by_category = {"cat": [],
+                             "dog": []}
+    
+    for i in range(10):
+        filename = f"cat_{i:02d}.jpg"
+        (cat_dir / filename).touch()
+        all_files_by_category["cat"].append(filename)
+
+    for i in range(20):
+        filename = f"dog_{i:02d}.jpg"
+        (dog_dir / filename).touch()
+        all_files_by_category["dog"].append(filename)
+
+
+    target_dir = tmp_path / "split_data"
+
+
+    # set up expected results (counts and file structure)
+    expected_counts = {"train": {"cat": 6, "dog": 12},
+                       "valid": {"cat": 2, "dog": 4},
+                       "test": {"cat": 2, "dog": 4}}
+    
+    # create expected set of files by split 
+    expected_files_by_split = {"train": {},
+                               "valid": {},
+                               "test": {}}
+    
+    categories = ["cat", "dog"]
+    splits = ["train", "valid", "test"]
+    for category in categories:
+        all_files = all_files_by_category[category]
+        current = 0
+
+        for split in splits:
+            count = expected_counts[split][category]
+            files_for_split = all_files[current : current + count]
+            expected_files_by_split[split][category] = set(files_for_split)
+            current += count
+    
+
+    # Run the split
+    counts = split_dataset(source_dir=raw_data,
+                           target_dir=target_dir,
+                           splits=(0.6, 0.2, 0.2),
+                           shuffle=False)
+
+    # Check returned counts are as expected
+    assert counts == expected_counts, f"Counts mismatch!\nExpected: {expected_counts}\nActual: {counts}"
+
+    # Check that directories and files were created correctly
+    for split in splits:
+        for category in categories:
+            split_cat_dir = target_dir / split / category
+
+            assert split_cat_dir.exists(), f"Missing folder: {split_cat_dir}"
+
+            files = list(split_cat_dir.iterdir())
+            actual_files = {f.name for f in files}
+            expected_files = expected_files_by_split[split][category]
+
+            assert actual_files == expected_files, (
+                f"Expected and actual files in {split_cat_dir} do not match.\n"
+                f"Expected: {expected_files}\n"
+                f"Actual: {actual_files}"
+            )
+
+    # Check original files still exist (didn't get moved): sets ignore order
+    expected_cat_files = {f"cat_{i:02d}.jpg" for i in range(10)}
+    actual_cat_files = {f.name for f in (raw_data / "cat").iterdir()}
+    assert actual_cat_files == expected_cat_files, "Original cat files missing or changed."
+
+    expected_dog_files = {f"dog_{i:02d}.jpg" for i in range(20)}
+    actual_dog_files = {f.name for f in (raw_data / "dog").iterdir()}
+    assert actual_dog_files == expected_dog_files, "Original dog files missing or changed."
+
+
+def test_split_dataset_missing_source(tmp_path):
+    """
+    Test that split_dataset raises FileNotFoundError when source_dir doesn't exist.
+    """
+    fake_source = tmp_path / "does_not_exist"
+    target = tmp_path / "split_data"
+
+    with pytest.raises(FileNotFoundError):
+        split_dataset(source_dir=fake_source,
+                      target_dir=target)
+
+
+def test_split_dataset_invalid_splits(tmp_path):
+    """
+    Test that split_dataset raises ValueError when splits don't sum to 1.0.
+    """
+    # create directory so we won't get FIleNotFoundError (see previous test) 
+    raw_data = tmp_path / "raw_data" 
+    raw_data.mkdir(parents=True, exist_ok=True)
+
+    with pytest.raises(ValueError):
+        split_dataset(source_dir=raw_data,
+                      target_dir=tmp_path / "split_data",
+                      splits=(0.5, 0.3, 0.3),  # sums to 1.1
+                      shuffle=False)
+
+
 def test_create_project(tmp_path):
     """
     Test the create_project function to ensure it creates the correct directory structure 
@@ -198,6 +316,7 @@ def test_create_project(tmp_path):
     assert project_dir_again == expected_project_dir, "Re-running create_project altered project_dir structure."
     assert data_dir_again == expected_data_dir, "Re-running create_project altered data_dir structure."
     assert models_dir_again == expected_models_dir, "Re-running create_project altered models_dir structure."
+
 
 
 def test_create_project_preserves_data(tmp_path):

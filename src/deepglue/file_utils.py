@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 from PIL import Image
 import random
+import shutil
 import torch
 
 import logging
@@ -61,6 +62,20 @@ def create_subdirs(parent_dir, subdirs):
 def sample_random_images(data_path, category_map, num_images=1, split_type='train', category=None):
     """
     Randomly sample image paths from a dataset with a standard categorical directory structure.
+
+    Assumes a directory structure where images are stored in category-specific
+    subdirectories inside the split folders ('train', 'valid', 'test').
+
+        data_path/
+            train/
+                cat/
+                dog/
+            valid/
+                cat/
+                dog/   
+            test/
+                cat/
+                dog/
 
     Parameters
     ----------
@@ -293,6 +308,113 @@ def count_category_by_split(data_path):
                 num_category_per_split[split_type][category] = num_images
 
     return num_category_per_split
+
+
+def split_dataset(source_dir,
+                  target_dir,
+                  splits=(0.7, 0.15, 0.15),
+                  shuffle=True):
+    """
+    Splits a dataset organized by category folders into train/valid/test folders.
+
+    Copies images from a flat category structure (e.g. target_dir/ cat/, dog/, etc.) into a
+    canonical deep learning format with separate splits:
+
+        target_dir/
+            train/
+                cat/
+                dog/
+            valid/
+                cat/
+                dog/   
+            test/
+                cat/
+                dog/
+
+    Parameters
+    ----------
+    source_dir : str or Path
+        Path to the folder containing category subfolders (e.g. cat/, dog/).
+    target_dir : str or Path
+        Path where the split dataset should be created.
+    splits : tuple of 3 floats, optional
+        Tuple indicating proportions of (train, valid, test) splits.
+        Values must sum to 1.0. Defaults to (0.7, 0.15, 0.15).
+    shuffle : bool, optional
+        Whether to shuffle images before splitting within a category. Defaults to True.
+
+    Returns
+    -------
+    counts : dict
+        A nested dictionary showing the number of images per category in each split
+        Example:
+            {
+                'train': {'cat': 140, 'dog': 200},
+                'valid': {'cat': 30, 'dog': 40},
+                'test': {'cat': 30, 'dog': 35}
+            }
+    Raises
+    ------
+    FileNotFoundError
+        If the source directory does not exist.
+    """
+    source_dir = Path(source_dir)
+    target_dir = Path(target_dir)
+
+    if not source_dir.exists():
+        raise FileNotFoundError(f"Source directory {source_dir} does not exist.")
+    
+    if len(splits) != 3:
+        raise ValueError(f"Splits must be a tuple of three floats. Got {splits}.")
+
+    split_names = ["train", "valid", "test"]
+    splits_dict = dict(zip(split_names, splits))
+    if abs(sum(splits_dict.values()) - 1.0) > 1e-6:
+        raise ValueError(f"Split fractions must sum to 1.0. Got {sum(splits_dict.values())}.")
+
+    logging.info(f"Splitting data from {source_dir} into {target_dir} using splits {splits_dict}")
+
+    # Prepare counts dictionary
+    counts = {
+        "train": {},
+        "valid": {},
+        "test": {},
+    }
+
+    category_dirs = [category_dir for category_dir in source_dir.iterdir() if category_dir.is_dir()]
+
+    for category_dir in category_dirs:
+        category = category_dir.name
+        images_category = sorted(category_dir.glob("*")) # get all files in category dir
+
+        if shuffle:
+            random.shuffle(images_category)  # shuffle in place
+        
+        n_cat_total = len(images_category)
+        n_cat_train = int(splits_dict["train"] * n_cat_total)
+        n_cat_valid = int(splits_dict["valid"] * n_cat_total)
+        n_cat_test = n_cat_total - n_cat_train - n_cat_valid
+
+        logging.info(f"Processing category '{category}': {n_cat_total} images"
+                     f"\ntrain: {n_cat_train}, valid: {n_cat_valid}, test: {n_cat_test}")
+
+        # Create mapping of split names to list of image paths
+        split_category_map = {"train": images_category[:n_cat_train],
+                         "valid": images_category[n_cat_train: n_cat_train + n_cat_valid],
+                         "test": images_category[n_cat_train + n_cat_valid:]}
+
+        for split_type, file_list in split_category_map.items():
+            split_category_dir = target_dir / split_type / category
+            split_category_dir.mkdir(parents=True, exist_ok=True)
+
+            for file in file_list:
+                dest = split_category_dir / file.name
+                shutil.copy2(file, dest)
+
+            counts[split_type][category] = len(file_list)
+
+    return counts
+
 
 
 def create_project(projects_dir, project_name):
