@@ -6,8 +6,7 @@ Utilities for pytorch-based deep learning projects. Keeping the useful stuff tog
 
 The philosophy of deepglue is to provide simple functionality that makes deep learning projects easier. There are lots of functions we tend to replicate across different projects, and deepglue puts them together in one place. 
 
-### Version: Pre-Alpha :construction: 
-deepglue is quickly evolving. If something breaks or seems awry, please ask: open an issue or discussion thread because you probably aren't wrong. 
+**Note**: Deepglue is not currently under active development, I used it to help me get up to speed with PyTorch basics for machine vision. 
 
 ## Installing and importing
     pip install deepglue
@@ -16,7 +15,5 @@ deepglue is quickly evolving. If something breaks or seems awry, please ask: ope
 ## Learn more
 - [Read the docs](https://deepglue.readthedocs.io/en/latest/) :book:
 - [Demo notebook](https://github.com/EricThomson/deepglue/tree/main/demos) :rocket: 
-- [Project roadmap](https://github.com/EricThomson/deepglue/issues/1) :world_map:
-- [Contribute to deepglue](CONTRIBUTING.md) :hammer: 
 
 
